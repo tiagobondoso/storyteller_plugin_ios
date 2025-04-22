@@ -1,0 +1,14 @@
+{
+  "name": "cordova-plugin-storyteller",
+  "version": "1.0.0",
+  "description": "Plugin to use the Storyteller SDK in your app",
+  "cordova": {
+    "id": "cordova-plugin-storyteller",
+    "platforms": ["ios", "android"]
+  },
+  "dependencies": {
+    "cordova-android": "^10.1.1",
+    "cordova-ios": "^7.1.1"
+  },
+  "author": "Tomás Martins"
+}

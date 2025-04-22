@@ -1,0 +1,1547 @@
+// swift-interface-format-version: 1.0
+// swift-compiler-version: Apple Swift version 6.0.3 (swiftlang-6.0.3.1.10 clang-1600.0.30.1)
+// swift-module-flags: -target arm64-apple-ios13.0 -enable-objc-interop -enable-library-evolution -swift-version 6 -enforce-exclusivity=checked -O -module-name StorytellerSDK
+// swift-module-flags-ignorable: -no-verify-emitted-module-interface
+import AVFoundation
+import AVKit
+import AudioToolbox
+import CallKit
+import Combine
+import CommonCrypto
+import CoreText
+import CryptoKit
+import DeveloperToolsSupport
+import Foundation
+import Photos
+import StoreKit
+import Swift
+import SwiftUI
+import UIKit
+import WebKit
+import _Concurrency
+import _StringProcessing
+import _SwiftConcurrencyShims
+import os
+public enum StorytellerSDKAsset : Swift.Sendable {
+  public static let disabledCaptions: StorytellerSDK.StorytellerSDKImages
+  public static let enabledCaptions: StorytellerSDK.StorytellerSDKImages
+  public static let iconStarFollowing: StorytellerSDK.StorytellerSDKImages
+  public static let iconStarNotFollowing: StorytellerSDK.StorytellerSDKImages
+  public static let placeholderDarkBottom: StorytellerSDK.StorytellerSDKColors
+  public static let placeholderDarkTop: StorytellerSDK.StorytellerSDKColors
+  public static let placeholderGray: StorytellerSDK.StorytellerSDKColors
+  public static let placeholderLightBottom: StorytellerSDK.StorytellerSDKColors
+  public static let placeholderLightTop: StorytellerSDK.StorytellerSDKColors
+  public static let backgroundTextPlaceholderSquareDark: StorytellerSDK.StorytellerSDKImages
+  public static let backgroundTextPlaceholderSquareLight: StorytellerSDK.StorytellerSDKImages
+  public static let feedEllipsis: StorytellerSDK.StorytellerSDKImages
+  public static let feedPlay: StorytellerSDK.StorytellerSDKImages
+  public static let iconInstructionBackBlack: StorytellerSDK.StorytellerSDKImages
+  public static let iconInstructionBackWhite: StorytellerSDK.StorytellerSDKImages
+  public static let iconInstructionForwardBlack: StorytellerSDK.StorytellerSDKImages
+  public static let iconInstructionForwardWhite: StorytellerSDK.StorytellerSDKImages
+  public static let iconInstructionNavigation: StorytellerSDK.StorytellerSDKImages
+  public static let iconInstructionPauseBlack: StorytellerSDK.StorytellerSDKImages
+  public static let iconInstructionPauseWhite: StorytellerSDK.StorytellerSDKImages
+  public static let iconInstructionSwipeBlack: StorytellerSDK.StorytellerSDKImages
+  public static let iconInstructionSwipeDown: StorytellerSDK.StorytellerSDKImages
+  public static let iconInstructionSwipeUp: StorytellerSDK.StorytellerSDKImages
+  public static let iconInstructionSwipeWhite: StorytellerSDK.StorytellerSDKImages
+  public static let magnifyingglassBackground: StorytellerSDK.StorytellerSDKColors
+  public static let textPlaceholderRoundDark: StorytellerSDK.StorytellerSDKImages
+  public static let textPlaceholderRoundLight: StorytellerSDK.StorytellerSDKImages
+  public static let playIcon: StorytellerSDK.StorytellerSDKImages
+  public static let nextStory: StorytellerSDK.StorytellerSDKImages
+  public static let previousStory: StorytellerSDK.StorytellerSDKImages
+}
+@_hasMissingDesignatedInitializers final public class StorytellerSDKColors : Swift.Sendable {
+  final public let name: Swift.String
+  public typealias Color = UIKit.UIColor
+  @available(iOS 11.0, tvOS 11.0, watchOS 4.0, macOS 10.13, visionOS 1.0, *)
+  final public var color: StorytellerSDK.StorytellerSDKColors.Color {
+    get
+  }
+  @available(iOS 13.0, tvOS 13.0, watchOS 6.0, macOS 10.15, visionOS 1.0, *)
+  final public var swiftUIColor: SwiftUICore.Color {
+    get
+  }
+  @objc deinit
+}
+extension UIKit.UIColor {
+  @available(iOS 11.0, tvOS 11.0, watchOS 4.0, macOS 10.13, visionOS 1.0, *)
+  convenience public init?(asset: StorytellerSDK.StorytellerSDKColors)
+}
+@available(iOS 13.0, tvOS 13.0, watchOS 6.0, macOS 10.15, visionOS 1.0, *)
+extension SwiftUICore.Color {
+  public init(asset: StorytellerSDK.StorytellerSDKColors)
+}
+public struct StorytellerSDKImages : Swift.Sendable {
+  public let name: Swift.String
+  public typealias Image = UIKit.UIImage
+  public var image: StorytellerSDK.StorytellerSDKImages.Image {
+    get
+  }
+  @available(iOS 13.0, tvOS 13.0, watchOS 6.0, macOS 10.15, visionOS 1.0, *)
+  public var swiftUIImage: SwiftUICore.Image {
+    get
+  }
+}
+@available(iOS 13.0, tvOS 13.0, watchOS 6.0, macOS 10.15, visionOS 1.0, *)
+extension SwiftUICore.Image {
+  public init(asset: StorytellerSDK.StorytellerSDKImages)
+  public init(asset: StorytellerSDK.StorytellerSDKImages, label: SwiftUICore.Text)
+  public init(decorative asset: StorytellerSDK.StorytellerSDKImages)
+}
+@_inheritsConvenienceInitializers @objc public class StorytellerSDKResources : ObjectiveC.NSObject {
+  @objc public class var bundle: Foundation.Bundle {
+    @objc get
+  }
+  @objc override dynamic public init()
+  @objc deinit
+}
+public struct Placement : StorytellerSDK.PlacementType, Swift.Hashable, Swift.Sendable {
+  public var title: Swift.String
+  public var code: Swift.String
+  public func hash(into hasher: inout Swift.Hasher)
+  public static func == (a: StorytellerSDK.Placement, b: StorytellerSDK.Placement) -> Swift.Bool
+  public func encode(to encoder: any Swift.Encoder) throws
+  public var hashValue: Swift.Int {
+    get
+  }
+  public init(from decoder: any Swift.Decoder) throws
+}
+public struct StorytellerAdTrackingPixel : Swift.Hashable, Swift.Codable, Swift.Sendable {
+  public let eventType: Swift.String
+  public let url: Swift.String
+  public init(eventType: Swift.String = "impression", url: Swift.String)
+  public func hash(into hasher: inout Swift.Hasher)
+  public static func == (a: StorytellerSDK.StorytellerAdTrackingPixel, b: StorytellerSDK.StorytellerAdTrackingPixel) -> Swift.Bool
+  public func encode(to encoder: any Swift.Encoder) throws
+  public var hashValue: Swift.Int {
+    get
+  }
+  public init(from decoder: any Swift.Decoder) throws
+}
+public enum StorytellerActionType : Swift.String, Swift.Codable, Swift.Hashable, Swift.Sendable {
+  case web
+  case inApp
+  case store
+  case externalApp
+  case share
+  case sheet
+  case none
+  public init?(rawValue: Swift.String)
+  public typealias RawValue = Swift.String
+  public var rawValue: Swift.String {
+    get
+  }
+}
+public struct StorytellerAd : Swift.Sendable {
+  public init(id: Swift.String, advertiserName: Swift.String, advertiserDescription: Swift.String? = nil, advertiserLogoURL: Swift.String? = nil, image: Swift.String?, video: Swift.String?, playcardUrl: Swift.String?, duration: Swift.Double?, trackingPixels: [StorytellerSDK.StorytellerAdTrackingPixel], action: StorytellerSDK.StorytellerAdAction?, adFormat: Swift.String, responseIdentifier: Swift.String?, standardAd: StorytellerSDK.StorytellerStandardAd? = nil)
+  public let id: Swift.String
+  public let advertiserName: Swift.String
+  public let advertiserDescription: Swift.String?
+  public let advertiserLogoURL: Swift.String?
+  public let image: Swift.String?
+  public let video: Swift.String?
+  public let playcardUrl: Swift.String?
+  public let duration: Swift.Double?
+  public let trackingPixels: [StorytellerSDK.StorytellerAdTrackingPixel]
+  public let action: StorytellerSDK.StorytellerAdAction?
+  public let adFormat: Swift.String
+  public let responseIdentifier: Swift.String?
+  public var standardAd: StorytellerSDK.StorytellerStandardAd?
+}
+public struct StorytellerAdAction : Swift.Sendable {
+  public let urlOrStoreId: Swift.String
+  public let type: StorytellerSDK.StorytellerActionType
+  public let text: Swift.String?
+  @available(*, deprecated, renamed: "init(urlOrStoreId:type:)")
+  public init(url: Swift.String, kind: StorytellerSDK.StorytellerActionType, text: Swift.String? = nil)
+  public init(urlOrStoreId: Swift.String, type: StorytellerSDK.StorytellerActionType, text: Swift.String? = nil)
+}
+public enum StorytellerAdRequestInfo : Swift.Sendable {
+  case stories(placement: Swift.String, categories: [Swift.String], story: StorytellerSDK.StorytellerAdRequestInfo.ItemInfo)
+  case clips(collection: Swift.String, clip: StorytellerSDK.StorytellerAdRequestInfo.ItemInfo)
+  public struct ItemInfo : Swift.Sendable {
+    public let id: Swift.String
+    public let categories: [StorytellerSDK.Category]
+  }
+}
+@objc public class StorytellerStandardAd : ObjectiveC.NSObject, @unchecked Swift.Sendable {
+  final public let rootView: UIKit.UIView
+  final public let mediaView: UIKit.UIView
+  final public let tappableView: UIKit.UIView
+  final public let attributionView: UIKit.UIView?
+  final public let mediaControl: (any StorytellerSDK.StorytellerAdMediaControl)?
+  final public let isBanner: Swift.Bool
+  final public let hasVideoContent: Swift.Bool
+  public var videoLoopedCallback: (() -> Swift.Void)?
+  public var gamVideoPlaybackStartedCallback: (() -> Swift.Void)?
+  public init(rootView: UIKit.UIView, tappableView: UIKit.UIView, mediaView: UIKit.UIView, attributionView: UIKit.UIView? = nil, mediaControl: (any StorytellerSDK.StorytellerAdMediaControl)? = nil, isBanner: Swift.Bool, hasVideoContent: Swift.Bool)
+  @objc deinit
+}
+public protocol StorytellerAdMediaControl {
+  func play()
+  func pause()
+  func stop()
+}
+public struct Category : Swift.Codable, Swift.Hashable, Swift.Sendable {
+  public var displayTitle: Swift.String
+  public var externalId: Swift.String
+  public var name: Swift.String
+  public var placement: StorytellerSDK.Placement?
+  public var type: Swift.String
+  public func hash(into hasher: inout Swift.Hasher)
+  public static func == (a: StorytellerSDK.Category, b: StorytellerSDK.Category) -> Swift.Bool
+  public func encode(to encoder: any Swift.Encoder) throws
+  public var hashValue: Swift.Int {
+    get
+  }
+  public init(from decoder: any Swift.Decoder) throws
+}
+public struct CategoryDetail : Swift.Codable, Swift.Equatable, Swift.Sendable {
+  public let name: Swift.String
+  public let id: Swift.String?
+  public let type: Swift.String
+  public let placement: Swift.String?
+  public static func == (a: StorytellerSDK.CategoryDetail, b: StorytellerSDK.CategoryDetail) -> Swift.Bool
+  public func encode(to encoder: any Swift.Encoder) throws
+  public init(from decoder: any Swift.Decoder) throws
+}
+public struct CurrentCategoryData : Swift.Equatable, Swift.Codable, Swift.Sendable {
+  public let title: Swift.String
+  public let id: Swift.String?
+  public let placement: Swift.String?
+  public static func == (a: StorytellerSDK.CurrentCategoryData, b: StorytellerSDK.CurrentCategoryData) -> Swift.Bool
+  public func encode(to encoder: any Swift.Encoder) throws
+  public init(from decoder: any Swift.Decoder) throws
+}
+public protocol PlacementType : Swift.Decodable, Swift.Encodable {
+  var title: Swift.String { get }
+  var code: Swift.String { get }
+}
+public struct StorytellerEventTrackingOptions : Swift.Codable, Swift.Sendable {
+  public var enablePersonalization: Swift.Bool
+  public var enableStorytellerTracking: Swift.Bool
+  public var enableUserActivityTracking: Swift.Bool
+  public var enableAdTracking: Swift.Bool
+  public init(enablePersonalization: Swift.Bool, enableStorytellerTracking: Swift.Bool, enableUserActivityTracking: Swift.Bool, enableAdTracking: Swift.Bool)
+  public static let enableAll: StorytellerSDK.StorytellerEventTrackingOptions
+  public static let disableAll: StorytellerSDK.StorytellerEventTrackingOptions
+  public func encode(to encoder: any Swift.Encoder) throws
+  public init(from decoder: any Swift.Decoder) throws
+}
+public struct UserActivity : Swift.Sendable {
+  public enum EventType : Swift.String, Swift.Sendable {
+    case OpenedStory
+    case DismissedStory
+    case SkippedPage
+    case SkippedStory
+    case CompletedPage
+    case CompletedStory
+    case OpenedPage
+    case PreviousPage
+    case PreviousStory
+    case ActionButtonTapped
+    case ShareButtonTapped
+    case ShareSuccess
+    case OpenedAd
+    case DismissedAd
+    case SkippedAd
+    case AdActionButtonTapped
+    case PausedAdPage
+    case ResumedAdPage
+    case ViewedAdPageComplete
+    case ViewedAdPageFirstQuartile
+    case ViewedAdPageMidpoint
+    case ViewedAdPageThirdQuartile
+    case FinishedAd
+    case ReadyToPlay
+    case MediaStarted
+    case BufferingStarted
+    case BufferingEnded
+    case CurrentPlayerChanged
+    case VotedPoll
+    case TriviaQuizQuestionAnswered
+    case TriviaQuizCompleted
+    case OpenedClip
+    case DismissedClip
+    case FinishedClip
+    case NextClip
+    case PreviousClip
+    case CompletedLoop
+    case PausedClip
+    case ResumedClip
+    case ScrubbedClip
+    case LikedClip
+    case UnlikedClip
+    case OpenedCategory
+    case DismissedCategory
+    case FollowCategory
+    case UnfollowCategory
+    case FollowableCategoryTapped
+    case EnabledClipCaptions
+    case DisabledClipCaptions
+    case OpenedSearch
+    case DismissedSearch
+    case PerformedSearch
+    case OpenedFilters
+    case DismissedFilters
+    case UsedSuggestion
+    case OpenedSheet
+    case DismissedSheet
+    public init?(rawValue: Swift.String)
+    public typealias RawValue = Swift.String
+    public var rawValue: Swift.String {
+      get
+    }
+  }
+}
+public struct UserActivityData : Swift.Codable, Swift.Equatable, Swift.Sendable {
+  public let storyId: Swift.String?
+  public let storyTitle: Swift.String?
+  public let storyDisplayTitle: Swift.String?
+  public let storyIndex: Swift.Int?
+  public let storyPageCount: Swift.Int?
+  public let storyReadStatus: Swift.String?
+  public let pageId: Swift.String?
+  public let pageTitle: Swift.String?
+  public let pageIndex: Swift.Int?
+  public let pageType: Swift.String?
+  public let storyPlaybackMode: Swift.String?
+  public let contentLength: Swift.Int?
+  public let pageActionType: Swift.String?
+  public let pageHasAction: Swift.Bool?
+  public let pageActionText: Swift.String?
+  public let pageActionUrl: Swift.String?
+  public let openedReason: Swift.String?
+  public let shareMethod: Swift.String?
+  public let dismissedReason: Swift.String?
+  public let durationViewed: Swift.Int?
+  public let pagesViewedCount: Swift.Int?
+  public let advertiserName: Swift.String?
+  public let adId: Swift.String?
+  public let adFormat: Swift.String?
+  public let adResponseIdentifier: Swift.String?
+  @StorytellerSDK.CodableIgnored public var adView: UIKit.UIView? {
+    get
+    set
+    _modify
+  }
+  @StorytellerSDK.CodableIgnored public var player: AVFoundation.AVPlayer? {
+    get
+    set
+    _modify
+  }
+  public let adType: Swift.String?
+  public let adPlacement: Swift.String?
+  public let isInitialBuffering: Swift.Bool?
+  public let timeSinceBufferingBegan: Foundation.TimeInterval?
+  public let categories: [Swift.String]?
+  public let categoryDetails: [StorytellerSDK.CategoryDetail]?
+  public let collection: Swift.String?
+  public let collectionClipCount: Swift.Int?
+  public let currentCategory: StorytellerSDK.CurrentCategoryData?
+  public let pollAnswerId: Swift.String?
+  public let triviaQuizId: Swift.String?
+  public let triviaQuizTitle: Swift.String?
+  public let triviaQuizScore: Swift.Int?
+  public let triviaQuizQuestionId: Swift.String?
+  public let triviaQuizAnswerId: Swift.String?
+  public let clipId: Swift.String?
+  public let clipTitle: Swift.String?
+  public let clipIndex: Swift.Int?
+  public let clipsViewed: Swift.Int?
+  public let loopsViewed: Swift.Int?
+  public let clipActionType: Swift.String?
+  public let clipHasAction: Swift.Bool?
+  public let clipActionText: Swift.String?
+  public let clipActionUrl: Swift.String?
+  public let categoryId: Swift.String?
+  public let categoryName: Swift.String?
+  public let categoryType: Swift.String?
+  public let clipFeedType: Swift.String?
+  public let searchFilter: Swift.String?
+  public let searchSort: Swift.String?
+  public let searchTerm: Swift.String?
+  public let searchFrom: Swift.String?
+  public let isSuggestion: Swift.Bool?
+  public let initialInput: Swift.String?
+  public let location: Swift.String?
+  public var locale: Swift.String?
+  public let itemTitle: Swift.String?
+  public let actionText: Swift.String?
+  public let containerTitle: Swift.String?
+  public let metadata: [Swift.String : Swift.String]?
+  public let isLive: Swift.Bool
+  public let captionsEnabled: Swift.Bool?
+  public var airplayEnabled: Swift.Bool?
+  public let startPosition: Swift.Int?
+  public let endPosition: Swift.Int?
+  public let scrubDirection: Swift.String?
+  public let completionType: Swift.String?
+  public let sheetId: Swift.String?
+  public let sheetTitle: Swift.String?
+  public let sheetSize: Swift.Int?
+  public static func == (a: StorytellerSDK.UserActivityData, b: StorytellerSDK.UserActivityData) -> Swift.Bool
+  public func encode(to encoder: any Swift.Encoder) throws
+  public init(from decoder: any Swift.Decoder) throws
+}
+public enum StorytellerClipsOpenReason {
+  case deeplink
+  public static func == (a: StorytellerSDK.StorytellerClipsOpenReason, b: StorytellerSDK.StorytellerClipsOpenReason) -> Swift.Bool
+  public func hash(into hasher: inout Swift.Hasher)
+  public var hashValue: Swift.Int {
+    get
+  }
+}
+public struct ClipCollectionConfiguration : Swift.Equatable, Swift.Sendable {
+  public init(collectionId: Swift.String, destination: StorytellerSDK.ClipCollectionConfiguration.Destination? = nil, openedReason: StorytellerSDK.StorytellerClipsOpenReason? = nil, theme: StorytellerSDK.StorytellerTheme? = nil)
+  public enum Destination : Swift.Equatable, Swift.Sendable {
+    case category(id: Swift.String)
+    case clip(id: Swift.String)
+    public static func == (a: StorytellerSDK.ClipCollectionConfiguration.Destination, b: StorytellerSDK.ClipCollectionConfiguration.Destination) -> Swift.Bool
+  }
+  public static func == (a: StorytellerSDK.ClipCollectionConfiguration, b: StorytellerSDK.ClipCollectionConfiguration) -> Swift.Bool
+}
+@_Concurrency.MainActor public protocol StorytellerClipsViewControllerDelegate : AnyObject {
+  @_Concurrency.MainActor func topLevelBackTapped()
+  @_Concurrency.MainActor func onDataLoadStarted()
+  @_Concurrency.MainActor func onDataLoadComplete(success: Swift.Bool, error: (any Swift.Error)?)
+}
+extension StorytellerSDK.StorytellerClipsViewControllerDelegate {
+  @_Concurrency.MainActor public func viewController(for category: StorytellerSDK.Category) -> UIKit.UIViewController?
+}
+extension StorytellerSDK.StorytellerClipsViewControllerDelegate where Self : UIKit.UIViewController {
+  @_Concurrency.MainActor public func topLevelBackTapped()
+}
+@objc @_hasMissingDesignatedInitializers @_Concurrency.MainActor @preconcurrency public class StorytellerClipsViewController : UIKit.UIViewController {
+  @_Concurrency.MainActor @preconcurrency @objc dynamic public init()
+  @_Concurrency.MainActor @preconcurrency weak public var delegate: (any StorytellerSDK.StorytellerClipsViewControllerDelegate)?
+  @_Concurrency.MainActor @preconcurrency @objc override dynamic public var preferredFocusEnvironments: [any UIKit.UIFocusEnvironment] {
+    @objc get
+  }
+  @_Concurrency.MainActor @preconcurrency public var canGoBack: Swift.Bool {
+    get
+  }
+  @available(*, deprecated, message: "This property will be removed. Please use `set(collectionId:initialClipId:)`")
+  @_Concurrency.MainActor @preconcurrency public var collectionId: Swift.String {
+    get
+    set
+  }
+  @_Concurrency.MainActor @preconcurrency public var topLevelBackButtonEnabled: Swift.Bool {
+    get
+    set
+  }
+  @available(*, deprecated, message: "This method will be removed. Please use `configure(with:)`")
+  @_Concurrency.MainActor @preconcurrency public func set(collectionId: Swift.String, initialClipId: Swift.String? = nil, openedReason: StorytellerSDK.StorytellerClipsOpenReason? = nil, theme: StorytellerSDK.StorytellerTheme? = nil)
+  @_Concurrency.MainActor @preconcurrency public func configure(with configuration: StorytellerSDK.ClipCollectionConfiguration)
+  @_Concurrency.MainActor @preconcurrency @objc override dynamic public func viewDidLoad()
+  @_Concurrency.MainActor @preconcurrency @objc override dynamic public func viewWillAppear(_ animated: Swift.Bool)
+  @_Concurrency.MainActor @preconcurrency @objc override dynamic public func viewWillDisappear(_ animated: Swift.Bool)
+  @_Concurrency.MainActor @preconcurrency @objc override dynamic public func viewDidDisappear(_ animated: Swift.Bool)
+  @_Concurrency.MainActor @preconcurrency public func willShow()
+  @_Concurrency.MainActor @preconcurrency public func willHide()
+  @_Concurrency.MainActor @preconcurrency public func reloadData()
+  @_Concurrency.MainActor @preconcurrency @objc override dynamic public func viewDidLayoutSubviews()
+  @objc deinit
+}
+extension StorytellerSDK.StorytellerClipsViewController : UIKit.UIPageViewControllerDataSource {
+  @_Concurrency.MainActor @preconcurrency @objc dynamic public func pageViewController(_ pageViewController: UIKit.UIPageViewController, viewControllerBefore viewController: UIKit.UIViewController) -> UIKit.UIViewController?
+  @_Concurrency.MainActor @preconcurrency @objc dynamic public func pageViewController(_ pageViewController: UIKit.UIPageViewController, viewControllerAfter viewController: UIKit.UIViewController) -> UIKit.UIViewController?
+}
+extension StorytellerSDK.StorytellerClipsViewController : UIKit.UIPageViewControllerDelegate {
+  @_Concurrency.MainActor @preconcurrency @objc dynamic public func pageViewController(_ pageViewController: UIKit.UIPageViewController, didFinishAnimating finished: Swift.Bool, previousViewControllers: [UIKit.UIViewController], transitionCompleted completed: Swift.Bool)
+}
+extension StorytellerSDK.StorytellerClipsViewController {
+  @_Concurrency.MainActor @preconcurrency @objc override dynamic public var supportedInterfaceOrientations: UIKit.UIInterfaceOrientationMask {
+    @objc get
+  }
+  @_Concurrency.MainActor @preconcurrency @objc override dynamic public var shouldAutorotate: Swift.Bool {
+    @objc get
+  }
+}
+extension StorytellerSDK.StorytellerClipsViewController {
+  @objc @_Concurrency.MainActor dynamic public func resumePlayer()
+}
+@propertyWrapper public struct CodableIgnored<T> : Swift.Codable, @unchecked Swift.Sendable {
+  public var wrappedValue: T?
+  public init(wrappedValue: T?)
+  public init(from decoder: any Swift.Decoder) throws
+  public func encode(to encoder: any Swift.Encoder) throws
+}
+extension StorytellerSDK.CodableIgnored : Swift.Equatable where T : Swift.Equatable {
+  public static func == (a: StorytellerSDK.CodableIgnored<T>, b: StorytellerSDK.CodableIgnored<T>) -> Swift.Bool
+}
+public typealias VoidCompletion = () -> Swift.Void
+public typealias ErrorCompletion = @Sendable (any Swift.Error) -> Swift.Void
+public typealias ImageCompletion = (UIKit.UIImage?) -> Swift.Void
+@_hasMissingDesignatedInitializers public class Storyteller {
+  nonisolated(unsafe) public static var isPlayerVisible: Swift.Bool {
+    get
+  }
+  public static let version: Swift.String
+  public static let user: StorytellerSDK.StorytellerUser
+  nonisolated(unsafe) public static var modules: [any StorytellerSDK.StorytellerModule]
+  nonisolated(unsafe) weak public static var delegate: (any StorytellerSDK.StorytellerDelegate)?
+  nonisolated(unsafe) public static var theme: StorytellerSDK.StorytellerTheme
+  public static var eventTrackingOptions: StorytellerSDK.StorytellerEventTrackingOptions {
+    get
+    set
+  }
+  nonisolated(unsafe) public static var isInitialized: Swift.Bool {
+    get
+  }
+  public static var currentUserId: Swift.String? {
+    get
+  }
+  public static var currentApiKey: Swift.String? {
+    get
+  }
+  @available(*, deprecated, message: "This method will be removed. Please use the async version instead")
+  public static func dismissPlayer(animated: Swift.Bool, dismissReason: Swift.String? = nil, completion: (@Sendable () -> Swift.Void)? = nil)
+  @_Concurrency.MainActor public static func dismissPlayer(animated: Swift.Bool, dismissReason: Swift.String? = nil) async
+  @available(*, deprecated, message: "This method will be removed. Please use the async version instead")
+  public static func initialize(apiKey: Swift.String, userInput: StorytellerSDK.UserInput? = nil, onComplete: @escaping @Sendable () -> Swift.Void = {}, onError: @escaping @Sendable (any Swift.Error) -> Swift.Void = { _ in })
+  @_Concurrency.MainActor public static func initialize(apiKey: Swift.String, userInput: StorytellerSDK.UserInput? = nil) async throws
+  public static func resumePlayer()
+  @objc deinit
+}
+extension StorytellerSDK.Storyteller {
+  public static func isStorytellerDeepLink(url: Foundation.URL) -> Swift.Bool
+  @available(*, deprecated, message: "This method will be removed. Please use the async version instead")
+  public static func openDeepLink(url: Foundation.URL, onComplete: @escaping @Sendable (Swift.Result<Swift.Void, any Swift.Error>) -> Swift.Void)
+  @_Concurrency.MainActor public static func openDeepLink(url: Foundation.URL) async throws
+  @available(*, deprecated, message: "This method will be removed. Please use the async version instead")
+  public static func openStory(id: Swift.String, onError: StorytellerSDK.ErrorCompletion? = nil)
+  @_Concurrency.MainActor public static func openStory(id: Swift.String) async throws
+  @available(*, deprecated, message: "This method will be removed. Please use the async version instead")
+  public static func openStory(externalId: Swift.String, onError: StorytellerSDK.ErrorCompletion? = nil)
+  @_Concurrency.MainActor public static func openStory(externalId: Swift.String) async throws
+  @available(*, deprecated, message: "This method will be removed. Please use the async version instead")
+  public static func openPage(id: Swift.String, onError: StorytellerSDK.ErrorCompletion? = nil)
+  @_Concurrency.MainActor public static func openPage(id: Swift.String) async throws
+  @available(*, deprecated, message: "This method will be removed. Please use the async version instead")
+  public static func openCategory(category: Swift.String, onError: StorytellerSDK.ErrorCompletion? = nil)
+  @_Concurrency.MainActor public static func openCategory(category: Swift.String) async throws
+  @available(*, deprecated, message: "This method will be removed. Please use the async version instead")
+  public static func openCollection(collectionId: Swift.String, clipId: Swift.String? = nil, onError: StorytellerSDK.ErrorCompletion? = nil)
+  @_Concurrency.MainActor public static func openCollection(configuration: StorytellerSDK.ClipCollectionConfiguration) async throws
+  @available(*, deprecated, message: "This method will be removed. Please use the async version instead")
+  public static func openClipByExternalId(collectionId: Swift.String, externalId: Swift.String, onError: StorytellerSDK.ErrorCompletion? = nil)
+  @_Concurrency.MainActor public static func openClipByExternalId(collectionId: Swift.String, externalId: Swift.String) async throws
+  @_Concurrency.MainActor public static func openSheet(id: Swift.String) async throws
+}
+extension StorytellerSDK.Storyteller {
+  public static var isSearchEnabled: Swift.Bool {
+    get
+  }
+  @available(*, deprecated, message: "This method will be removed. Please use the async version instead")
+  public static func openSearch()
+  @_Concurrency.MainActor public static func openSearch() async
+}
+extension StorytellerSDK.Storyteller {
+  @available(*, deprecated, message: "This method will be removed. Please use the `eventTrackingOptions` property instead")
+  public static func setEventTrackingOptions(_ options: StorytellerSDK.StorytellerEventTrackingOptions)
+  @available(*, deprecated, message: "This method will be removed. Please use the `eventTrackingOptions` property instead")
+  public static func disableEventTracking()
+  @available(*, deprecated, message: "This method will be removed. Please use the `eventTrackingOptions` property instead")
+  public static func enableEventTracking()
+}
+public protocol StorytellerModule : AnyObject {
+  func onUserActivityOccurred(type: StorytellerSDK.UserActivity.EventType, data: StorytellerSDK.UserActivityData)
+  @available(*, deprecated, message: "This method will be removed. Please use the async version instead")
+  func getAd(for adRequestInfo: StorytellerSDK.StorytellerAdRequestInfo, onComplete: @escaping (StorytellerSDK.StorytellerAd) -> Swift.Void, onError: @escaping StorytellerSDK.ErrorCompletion)
+  func getAd(for adRequestInfo: StorytellerSDK.StorytellerAdRequestInfo) async throws -> StorytellerSDK.StorytellerAd
+}
+extension StorytellerSDK.StorytellerModule {
+  @available(*, deprecated, message: "This method will be removed. Please use the async version instead")
+  public func getAd(for adRequestInfo: StorytellerSDK.StorytellerAdRequestInfo, onComplete: @escaping (StorytellerSDK.StorytellerAd) -> Swift.Void, onError: @escaping StorytellerSDK.ErrorCompletion)
+  public func getAd(for adRequestInfo: StorytellerSDK.StorytellerAdRequestInfo) async throws -> StorytellerSDK.StorytellerAd
+  public func onUserActivityOccurred(type: StorytellerSDK.UserActivity.EventType, data: StorytellerSDK.UserActivityData)
+}
+public protocol StorytellerDelegate : StorytellerSDK.StorytellerModule {
+  func configureWebView(configuration: inout WebKit.WKWebViewConfiguration)
+  func userNavigatedToApp(url: Swift.String)
+  func categoryFollowActionTaken(category: StorytellerSDK.Category, isFollowing: Swift.Bool)
+  func log(message: Swift.String)
+  func viewController(for category: StorytellerSDK.Category) -> UIKit.UIViewController?
+  func onPlayerPresented()
+  func onPlayerDismissed()
+}
+extension StorytellerSDK.StorytellerDelegate {
+  public func configureWebView(configuration: inout WebKit.WKWebViewConfiguration)
+  public func userNavigatedToApp(url: Swift.String)
+  public func categoryFollowActionTaken(category: StorytellerSDK.Category, isFollowing: Swift.Bool)
+  public func log(message: Swift.String)
+  public func viewController(for category: StorytellerSDK.Category) -> UIKit.UIViewController?
+  public func onPlayerPresented()
+  public func onPlayerDismissed()
+}
+public enum StorytellerError : Foundation.LocalizedError, Swift.Sendable, Swift.Equatable {
+  case invalidAPIKeyError(any Swift.Error)
+  case networkError(any Swift.Error)
+  case networkTimeoutError(any Swift.Error)
+  case jsonParseError
+  case contentNotFound
+  case wrongInputData
+  public var cause: (any Swift.Error)? {
+    get
+  }
+  public var errorDescription: Swift.String? {
+    get
+  }
+  public static func == (lhs: StorytellerSDK.StorytellerError, rhs: StorytellerSDK.StorytellerError) -> Swift.Bool
+}
+public enum StorytellerListViewCellType : Swift.String, Swift.Codable, Swift.CaseIterable, Swift.Hashable, Swift.Sendable {
+  case square
+  case round
+  public init?(rawValue: Swift.String)
+  public typealias AllCases = [StorytellerSDK.StorytellerListViewCellType]
+  public typealias RawValue = Swift.String
+  nonisolated public static var allCases: [StorytellerSDK.StorytellerListViewCellType] {
+    get
+  }
+  public var rawValue: Swift.String {
+    get
+  }
+}
+@_hasMissingDesignatedInitializers public class StorytellerUser : @unchecked Swift.Sendable {
+  public var customAttributes: [Swift.String : Swift.String] {
+    get
+  }
+  public var followedCategories: [Swift.String] {
+    get
+  }
+  @objc deinit
+}
+extension StorytellerSDK.StorytellerUser {
+  public func setCustomAttribute(key: Swift.String, value: Swift.String)
+  public func removeCustomAttribute(key: Swift.String)
+}
+extension StorytellerSDK.StorytellerUser {
+  public func addFollowedCategory(_ category: Swift.String)
+  public func addFollowedCategories(_ categories: [Swift.String])
+  public func removeFollowedCategory(_ category: Swift.String)
+}
+extension StorytellerSDK.StorytellerUser {
+  public func setLocale(_ locale: Swift.String?)
+}
+public enum Alignment : Swift.String, Swift.Codable, Swift.Sendable {
+  case start
+  case center
+  case end
+  public var asNSTextAlignment: UIKit.NSTextAlignment {
+    get
+  }
+  public init?(rawValue: Swift.String)
+  public typealias RawValue = Swift.String
+  public var rawValue: Swift.String {
+    get
+  }
+}
+open class FontProvider : Swift.Codable, Swift.Equatable, Swift.Hashable, @unchecked Swift.Sendable {
+  public static func == (lhs: StorytellerSDK.FontProvider, rhs: StorytellerSDK.FontProvider) -> Swift.Bool
+  open func font(weight: StorytellerSDK.StorytellerFontWeight, size: CoreFoundation.CGFloat) -> UIKit.UIFont?
+  public init()
+  public func hash(into hasher: inout Swift.Hasher)
+  @objc deinit
+  open func encode(to encoder: any Swift.Encoder) throws
+  open var hashValue: Swift.Int {
+    get
+  }
+  required public init(from decoder: any Swift.Decoder) throws
+}
+public enum StorytellerFontWeight : Swift.CaseIterable, Swift.Sendable {
+  case medium
+  case heavy
+  case bold
+  case semibold
+  case regular
+  case black
+  public static func == (a: StorytellerSDK.StorytellerFontWeight, b: StorytellerSDK.StorytellerFontWeight) -> Swift.Bool
+  public func hash(into hasher: inout Swift.Hasher)
+  public typealias AllCases = [StorytellerSDK.StorytellerFontWeight]
+  nonisolated public static var allCases: [StorytellerSDK.StorytellerFontWeight] {
+    get
+  }
+  public var hashValue: Swift.Int {
+    get
+  }
+}
+open class InstructionsIconProvider {
+  public static var defaultValue: StorytellerSDK.InstructionsIconProvider {
+    get
+  }
+  public var forwardIconImage: UIKit.UIImage?
+  public var pauseIconImage: UIKit.UIImage?
+  public var backIconImage: UIKit.UIImage?
+  public var swipeIconImage: UIKit.UIImage?
+  public var closeButtonImage: UIKit.UIImage?
+  public init()
+  @objc deinit
+}
+public struct InstructionIcons : Swift.Codable, Swift.Hashable, Swift.Sendable {
+  public init(forward: UIKit.UIImage? = nil, pause: UIKit.UIImage? = nil, back: UIKit.UIImage? = nil, move: UIKit.UIImage? = nil)
+  public init(from decoder: any Swift.Decoder) throws
+  public var forward: UIKit.UIImage?
+  public var pause: UIKit.UIImage?
+  public var back: UIKit.UIImage?
+  public var move: UIKit.UIImage?
+  public func encode(to encoder: any Swift.Encoder) throws
+  public func hash(into hasher: inout Swift.Hasher)
+  public var hashValue: Swift.Int {
+    get
+  }
+}
+extension StorytellerSDK.InstructionIcons : Swift.Equatable {
+  public static func == (lhs: StorytellerSDK.InstructionIcons, rhs: StorytellerSDK.InstructionIcons) -> Swift.Bool
+}
+public struct PlayerIcons : Swift.Codable, Swift.Equatable, Swift.Hashable, Swift.Sendable {
+  public init(share: UIKit.UIImage? = nil, refresh: UIKit.UIImage? = nil, likeInitial: UIKit.UIImage? = nil, likeLiked: UIKit.UIImage? = nil)
+  public init(from decoder: any Swift.Decoder) throws
+  public struct LikeIcons : Swift.Codable, Swift.Equatable, Swift.Hashable, Swift.Sendable {
+    public init?(initial: UIKit.UIImage? = nil, liked: UIKit.UIImage? = nil)
+    public init(from decoder: any Swift.Decoder) throws
+    public func encode(to encoder: any Swift.Encoder) throws
+    public static func == (a: StorytellerSDK.PlayerIcons.LikeIcons, b: StorytellerSDK.PlayerIcons.LikeIcons) -> Swift.Bool
+    public func hash(into hasher: inout Swift.Hasher)
+    public var hashValue: Swift.Int {
+      get
+    }
+  }
+  public var share: UIKit.UIImage?
+  public var refresh: UIKit.UIImage?
+  public var like: StorytellerSDK.PlayerIcons.LikeIcons?
+  public func encode(to encoder: any Swift.Encoder) throws
+  public static func == (a: StorytellerSDK.PlayerIcons, b: StorytellerSDK.PlayerIcons) -> Swift.Bool
+  public func hash(into hasher: inout Swift.Hasher)
+  public var hashValue: Swift.Int {
+    get
+  }
+}
+public enum StorytellerStyle : Swift.String, Swift.Codable, Swift.CaseIterable, Swift.Hashable, Swift.Sendable {
+  case light
+  case dark
+  case auto
+  public init?(rawValue: Swift.String)
+  public typealias AllCases = [StorytellerSDK.StorytellerStyle]
+  public typealias RawValue = Swift.String
+  nonisolated public static var allCases: [StorytellerSDK.StorytellerStyle] {
+    get
+  }
+  public var rawValue: Swift.String {
+    get
+  }
+}
+public struct StorytellerTheme : Swift.Codable, Swift.Equatable, Swift.Hashable, Swift.Sendable {
+  public static func == (lhs: StorytellerSDK.StorytellerTheme, rhs: StorytellerSDK.StorytellerTheme) -> Swift.Bool
+  public init()
+  public var dark: StorytellerSDK.Theme
+  public var light: StorytellerSDK.Theme
+  public func hash(into hasher: inout Swift.Hasher)
+  public func encode(to encoder: any Swift.Encoder) throws
+  public var hashValue: Swift.Int {
+    get
+  }
+  public init(from decoder: any Swift.Decoder) throws
+}
+public enum TextCasing : Swift.String, Swift.Codable, Swift.Hashable, Swift.Sendable {
+  case `default`
+  case lower
+  case upper
+  public init?(rawValue: Swift.String)
+  public typealias RawValue = Swift.String
+  public var rawValue: Swift.String {
+    get
+  }
+}
+public struct Theme : Swift.Codable, Swift.Equatable, Swift.Hashable, Swift.Sendable {
+  public struct Colors : Swift.Codable, Swift.Equatable, Swift.Hashable, Swift.Sendable {
+    public var primary: UIKit.UIColor
+    public var success: UIKit.UIColor
+    public var alert: UIKit.UIColor
+    public var white: StorytellerSDK.Theme.Colors.Text
+    public var black: StorytellerSDK.Theme.Colors.Text
+    public struct Text : Swift.Codable, Swift.Equatable, Swift.Hashable, Swift.Sendable {
+      public var primary: UIKit.UIColor
+      public var secondary: UIKit.UIColor?
+      public var tertiary: UIKit.UIColor?
+      public static func == (a: StorytellerSDK.Theme.Colors.Text, b: StorytellerSDK.Theme.Colors.Text) -> Swift.Bool
+      public func hash(into hasher: inout Swift.Hasher)
+      public func encode(to encoder: any Swift.Encoder) throws
+      public var hashValue: Swift.Int {
+        get
+      }
+      public init(from decoder: any Swift.Decoder) throws
+    }
+    public static func == (a: StorytellerSDK.Theme.Colors, b: StorytellerSDK.Theme.Colors) -> Swift.Bool
+    public func hash(into hasher: inout Swift.Hasher)
+    public func encode(to encoder: any Swift.Encoder) throws
+    public var hashValue: Swift.Int {
+      get
+    }
+    public init(from decoder: any Swift.Decoder) throws
+  }
+  public struct Primitives : Swift.Codable, Swift.Equatable, Swift.Hashable, Swift.Sendable {
+    public var cornerRadius: CoreFoundation.CGFloat
+    public static func == (a: StorytellerSDK.Theme.Primitives, b: StorytellerSDK.Theme.Primitives) -> Swift.Bool
+    public func hash(into hasher: inout Swift.Hasher)
+    public func encode(to encoder: any Swift.Encoder) throws
+    public var hashValue: Swift.Int {
+      get
+    }
+    public init(from decoder: any Swift.Decoder) throws
+  }
+  public struct LiveChip : Swift.Codable, Swift.Equatable, Swift.Hashable, Swift.Sendable {
+    public var readImage: UIKit.UIImage?
+    public var unreadImage: UIKit.UIImage?
+    public var readBackgroundColor: UIKit.UIColor?
+    public var unreadBackgroundColor: UIKit.UIColor?
+    public var unreadBackgroundGradient: StorytellerSDK.Theme.Gradient?
+    public var readTextColor: UIKit.UIColor?
+    public var unreadTextColor: UIKit.UIColor?
+    public var readBorderColor: UIKit.UIColor?
+    public var unreadBorderColor: UIKit.UIColor?
+    public static func == (a: StorytellerSDK.Theme.LiveChip, b: StorytellerSDK.Theme.LiveChip) -> Swift.Bool
+    public func hash(into hasher: inout Swift.Hasher)
+    public func encode(to encoder: any Swift.Encoder) throws
+    public var hashValue: Swift.Int {
+      get
+    }
+    public init(from decoder: any Swift.Decoder) throws
+  }
+  public struct Gradient : Swift.Codable, Swift.Equatable, Swift.Hashable, Swift.Sendable {
+    public let startColor: UIKit.UIColor
+    public let endColor: UIKit.UIColor
+    public let startPosition: StorytellerSDK.Theme.Gradient.GradientPosition
+    public let endPosition: StorytellerSDK.Theme.Gradient.GradientPosition
+    public enum GradientPosition : Swift.Codable, Swift.Sendable {
+      case bottomLeft
+      case bottomCenter
+      case bottomRight
+      case centerLeft
+      case centerCenter
+      case centerRight
+      case topLeft
+      case topCenter
+      case topRight
+      public static func == (a: StorytellerSDK.Theme.Gradient.GradientPosition, b: StorytellerSDK.Theme.Gradient.GradientPosition) -> Swift.Bool
+      public func hash(into hasher: inout Swift.Hasher)
+      public func encode(to encoder: any Swift.Encoder) throws
+      public var hashValue: Swift.Int {
+        get
+      }
+      public init(from decoder: any Swift.Decoder) throws
+    }
+    public init(startColor: UIKit.UIColor, endColor: UIKit.UIColor, startPosition: StorytellerSDK.Theme.Gradient.GradientPosition, endPosition: StorytellerSDK.Theme.Gradient.GradientPosition)
+    public static func == (a: StorytellerSDK.Theme.Gradient, b: StorytellerSDK.Theme.Gradient) -> Swift.Bool
+    public func hash(into hasher: inout Swift.Hasher)
+    public func encode(to encoder: any Swift.Encoder) throws
+    public var hashValue: Swift.Int {
+      get
+    }
+    public init(from decoder: any Swift.Decoder) throws
+  }
+  public struct Title : Swift.Codable, Swift.Equatable, Swift.Hashable, Swift.Sendable {
+    public var font: StorytellerSDK.FontProvider?
+    public var textSize: CoreFoundation.CGFloat
+    public var lineHeight: CoreFoundation.CGFloat
+    public var textCase: StorytellerSDK.TextCasing
+    public var textColor: UIKit.UIColor?
+    public static func == (a: StorytellerSDK.Theme.Title, b: StorytellerSDK.Theme.Title) -> Swift.Bool
+    public func hash(into hasher: inout Swift.Hasher)
+    public func encode(to encoder: any Swift.Encoder) throws
+    public var hashValue: Swift.Int {
+      get
+    }
+    public init(from decoder: any Swift.Decoder) throws
+  }
+  public struct Search : Swift.Codable, Swift.Equatable, Swift.Hashable, Swift.Sendable {
+    public var backIcon: UIKit.UIImage?
+    public var heading: StorytellerSDK.Theme.Title
+    public static func == (a: StorytellerSDK.Theme.Search, b: StorytellerSDK.Theme.Search) -> Swift.Bool
+    public func hash(into hasher: inout Swift.Hasher)
+    public func encode(to encoder: any Swift.Encoder) throws
+    public var hashValue: Swift.Int {
+      get
+    }
+    public init(from decoder: any Swift.Decoder) throws
+  }
+  public struct Lists : Swift.Codable, Swift.Equatable, Swift.Hashable, Swift.Sendable {
+    public struct Row : Swift.Codable, Swift.Equatable, Swift.Hashable, Swift.Sendable {
+      public var tileSpacing: CoreFoundation.CGFloat
+      public var startInset: CoreFoundation.CGFloat
+      public var endInset: CoreFoundation.CGFloat
+      public static func == (a: StorytellerSDK.Theme.Lists.Row, b: StorytellerSDK.Theme.Lists.Row) -> Swift.Bool
+      public func hash(into hasher: inout Swift.Hasher)
+      public func encode(to encoder: any Swift.Encoder) throws
+      public var hashValue: Swift.Int {
+        get
+      }
+      public init(from decoder: any Swift.Decoder) throws
+    }
+    public struct Grid : Swift.Codable, Swift.Equatable, Swift.Hashable, Swift.Sendable {
+      public var tileSpacing: CoreFoundation.CGFloat
+      public var columns: Swift.Int
+      public var topInset: CoreFoundation.CGFloat
+      public var bottomInset: CoreFoundation.CGFloat
+      public static func == (a: StorytellerSDK.Theme.Lists.Grid, b: StorytellerSDK.Theme.Lists.Grid) -> Swift.Bool
+      public func hash(into hasher: inout Swift.Hasher)
+      public func encode(to encoder: any Swift.Encoder) throws
+      public var hashValue: Swift.Int {
+        get
+      }
+      public init(from decoder: any Swift.Decoder) throws
+    }
+    public var backgroundColor: UIKit.UIColor?
+    public var row: StorytellerSDK.Theme.Lists.Row
+    public var grid: StorytellerSDK.Theme.Lists.Grid
+    public var title: StorytellerSDK.Theme.Title
+    public var animateTilesOnReorder: Swift.Bool
+    public static func == (a: StorytellerSDK.Theme.Lists, b: StorytellerSDK.Theme.Lists) -> Swift.Bool
+    public func hash(into hasher: inout Swift.Hasher)
+    public func encode(to encoder: any Swift.Encoder) throws
+    public var hashValue: Swift.Int {
+      get
+    }
+    public init(from decoder: any Swift.Decoder) throws
+  }
+  public struct Tiles : Swift.Codable, Swift.Equatable, Swift.Hashable, Swift.Sendable {
+    public struct Chip : Swift.Codable, Swift.Equatable, Swift.Hashable, Swift.Sendable {
+      public var textSize: CoreFoundation.CGFloat
+      public var show: Swift.Bool
+      public static func == (a: StorytellerSDK.Theme.Tiles.Chip, b: StorytellerSDK.Theme.Tiles.Chip) -> Swift.Bool
+      public func hash(into hasher: inout Swift.Hasher)
+      public func encode(to encoder: any Swift.Encoder) throws
+      public var hashValue: Swift.Int {
+        get
+      }
+      public init(from decoder: any Swift.Decoder) throws
+    }
+    public struct Title : Swift.Codable, Swift.Equatable, Swift.Hashable, Swift.Sendable {
+      public var show: Swift.Bool
+      public var textSize: CoreFoundation.CGFloat
+      public var lineHeight: CoreFoundation.CGFloat
+      public var alignment: StorytellerSDK.Alignment
+      public static func == (a: StorytellerSDK.Theme.Tiles.Title, b: StorytellerSDK.Theme.Tiles.Title) -> Swift.Bool
+      public func hash(into hasher: inout Swift.Hasher)
+      public func encode(to encoder: any Swift.Encoder) throws
+      public var hashValue: Swift.Int {
+        get
+      }
+      public init(from decoder: any Swift.Decoder) throws
+    }
+    public struct CircularTile : Swift.Codable, Swift.Equatable, Swift.Hashable, Swift.Sendable {
+      public var title: StorytellerSDK.Theme.Tiles.CircularTile.Title
+      public var unreadIndicatorColor: UIKit.UIColor?
+      public var readIndicatorColor: UIKit.UIColor
+      public var unreadIndicatorGradient: StorytellerSDK.Theme.Gradient?
+      public var unreadBorderWidth: CoreFoundation.CGFloat
+      public var readBorderWidth: CoreFoundation.CGFloat
+      public var unreadIndicatorBorderColor: UIKit.UIColor?
+      public var readIndicatorBorderColor: UIKit.UIColor?
+      public var liveChip: StorytellerSDK.Theme.LiveChip
+      public struct Title : Swift.Codable, Swift.Equatable, Swift.Hashable, Swift.Sendable {
+        public var readTextColor: UIKit.UIColor?
+        public var unreadTextColor: UIKit.UIColor?
+        public static func == (a: StorytellerSDK.Theme.Tiles.CircularTile.Title, b: StorytellerSDK.Theme.Tiles.CircularTile.Title) -> Swift.Bool
+        public func hash(into hasher: inout Swift.Hasher)
+        public func encode(to encoder: any Swift.Encoder) throws
+        public var hashValue: Swift.Int {
+          get
+        }
+        public init(from decoder: any Swift.Decoder) throws
+      }
+      public static func == (a: StorytellerSDK.Theme.Tiles.CircularTile, b: StorytellerSDK.Theme.Tiles.CircularTile) -> Swift.Bool
+      public func hash(into hasher: inout Swift.Hasher)
+      public func encode(to encoder: any Swift.Encoder) throws
+      public var hashValue: Swift.Int {
+        get
+      }
+      public init(from decoder: any Swift.Decoder) throws
+    }
+    public struct RectangularTile : Swift.Codable, Swift.Equatable, Swift.Hashable, Swift.Sendable {
+      public struct Title : Swift.Codable, Swift.Equatable, Swift.Hashable, Swift.Sendable {
+        public var textColor: UIKit.UIColor?
+        public static func == (a: StorytellerSDK.Theme.Tiles.RectangularTile.Title, b: StorytellerSDK.Theme.Tiles.RectangularTile.Title) -> Swift.Bool
+        public func hash(into hasher: inout Swift.Hasher)
+        public func encode(to encoder: any Swift.Encoder) throws
+        public var hashValue: Swift.Int {
+          get
+        }
+        public init(from decoder: any Swift.Decoder) throws
+      }
+      public struct Chip : Swift.Codable, Swift.Equatable, Swift.Hashable, Swift.Sendable {
+        public var alignment: StorytellerSDK.Alignment
+        public static func == (a: StorytellerSDK.Theme.Tiles.RectangularTile.Chip, b: StorytellerSDK.Theme.Tiles.RectangularTile.Chip) -> Swift.Bool
+        public func hash(into hasher: inout Swift.Hasher)
+        public func encode(to encoder: any Swift.Encoder) throws
+        public var hashValue: Swift.Int {
+          get
+        }
+        public init(from decoder: any Swift.Decoder) throws
+      }
+      public struct UnreadIndicator : Swift.Codable, Swift.Equatable, Swift.Hashable, Swift.Sendable {
+        public var image: UIKit.UIImage?
+        public var backgroundColor: UIKit.UIColor?
+        public var textColor: UIKit.UIColor?
+        public var gradient: StorytellerSDK.Theme.Gradient?
+        public var borderColor: UIKit.UIColor?
+        public static func == (a: StorytellerSDK.Theme.Tiles.RectangularTile.UnreadIndicator, b: StorytellerSDK.Theme.Tiles.RectangularTile.UnreadIndicator) -> Swift.Bool
+        public func hash(into hasher: inout Swift.Hasher)
+        public func encode(to encoder: any Swift.Encoder) throws
+        public var hashValue: Swift.Int {
+          get
+        }
+        public init(from decoder: any Swift.Decoder) throws
+      }
+      public var padding: CoreFoundation.CGFloat
+      public var title: StorytellerSDK.Theme.Tiles.RectangularTile.Title
+      public var chip: StorytellerSDK.Theme.Tiles.RectangularTile.Chip
+      public var unreadIndicator: StorytellerSDK.Theme.Tiles.RectangularTile.UnreadIndicator
+      public var liveChip: StorytellerSDK.Theme.LiveChip
+      public static func == (a: StorytellerSDK.Theme.Tiles.RectangularTile, b: StorytellerSDK.Theme.Tiles.RectangularTile) -> Swift.Bool
+      public func hash(into hasher: inout Swift.Hasher)
+      public func encode(to encoder: any Swift.Encoder) throws
+      public var hashValue: Swift.Int {
+        get
+      }
+      public init(from decoder: any Swift.Decoder) throws
+    }
+    public var chip: StorytellerSDK.Theme.Tiles.Chip
+    public var title: StorytellerSDK.Theme.Tiles.Title
+    public var circularTile: StorytellerSDK.Theme.Tiles.CircularTile
+    public var rectangularTile: StorytellerSDK.Theme.Tiles.RectangularTile
+    public static func == (a: StorytellerSDK.Theme.Tiles, b: StorytellerSDK.Theme.Tiles) -> Swift.Bool
+    public func hash(into hasher: inout Swift.Hasher)
+    public func encode(to encoder: any Swift.Encoder) throws
+    public var hashValue: Swift.Int {
+      get
+    }
+    public init(from decoder: any Swift.Decoder) throws
+  }
+  public struct EngagementUnits : Swift.Codable, Swift.Equatable, Swift.Hashable, Swift.Sendable {
+    public var poll: StorytellerSDK.Theme.EngagementUnits.Poll
+    public var triviaQuiz: StorytellerSDK.Theme.EngagementUnits.TriviaQuiz
+    public struct Poll : Swift.Codable, Swift.Equatable, Swift.Hashable, Swift.Sendable {
+      public var answerTextColor: UIKit.UIColor?
+      public var percentBarColor: UIKit.UIColor
+      public var selectedAnswerBorderColor: UIKit.UIColor?
+      public var answeredMessageTextColor: UIKit.UIColor?
+      public var selectedAnswerBorderImage: UIKit.UIImage?
+      public var showVoteCount: Swift.Bool
+      public static func == (a: StorytellerSDK.Theme.EngagementUnits.Poll, b: StorytellerSDK.Theme.EngagementUnits.Poll) -> Swift.Bool
+      public func hash(into hasher: inout Swift.Hasher)
+      public func encode(to encoder: any Swift.Encoder) throws
+      public var hashValue: Swift.Int {
+        get
+      }
+      public init(from decoder: any Swift.Decoder) throws
+    }
+    public struct TriviaQuiz : Swift.Codable, Swift.Equatable, Swift.Hashable, Swift.Sendable {
+      public var correctColor: UIKit.UIColor?
+      public var incorrectColor: UIKit.UIColor?
+      public static func == (a: StorytellerSDK.Theme.EngagementUnits.TriviaQuiz, b: StorytellerSDK.Theme.EngagementUnits.TriviaQuiz) -> Swift.Bool
+      public func hash(into hasher: inout Swift.Hasher)
+      public func encode(to encoder: any Swift.Encoder) throws
+      public var hashValue: Swift.Int {
+        get
+      }
+      public init(from decoder: any Swift.Decoder) throws
+    }
+    public static func == (a: StorytellerSDK.Theme.EngagementUnits, b: StorytellerSDK.Theme.EngagementUnits) -> Swift.Bool
+    public func hash(into hasher: inout Swift.Hasher)
+    public func encode(to encoder: any Swift.Encoder) throws
+    public var hashValue: Swift.Int {
+      get
+    }
+    public init(from decoder: any Swift.Decoder) throws
+  }
+  public struct Player : Swift.Codable, Swift.Equatable, Swift.Hashable, Swift.Sendable {
+    public var icons: StorytellerSDK.PlayerIcons
+    public var liveChip: StorytellerSDK.Theme.Player.LiveChip
+    public var showStoryIcon: Swift.Bool
+    public var showTimestamp: Swift.Bool
+    public var showShareButton: Swift.Bool
+    public var showLikeButton: Swift.Bool
+    public struct LiveChip : Swift.Codable, Swift.Equatable, Swift.Hashable, Swift.Sendable {
+      public var image: UIKit.UIImage?
+      public var textColor: UIKit.UIColor?
+      public var backgroundColor: UIKit.UIColor?
+      public var backgroundGradient: StorytellerSDK.Theme.Gradient?
+      public var borderColor: UIKit.UIColor?
+      public init(image: UIKit.UIImage? = nil, textColor: UIKit.UIColor? = nil, backgroundColor: UIKit.UIColor? = nil, backgroundGradient: StorytellerSDK.Theme.Gradient? = nil, borderColor: UIKit.UIColor? = nil)
+      public static func == (a: StorytellerSDK.Theme.Player.LiveChip, b: StorytellerSDK.Theme.Player.LiveChip) -> Swift.Bool
+      public func hash(into hasher: inout Swift.Hasher)
+      public func encode(to encoder: any Swift.Encoder) throws
+      public var hashValue: Swift.Int {
+        get
+      }
+      public init(from decoder: any Swift.Decoder) throws
+    }
+    public static func == (a: StorytellerSDK.Theme.Player, b: StorytellerSDK.Theme.Player) -> Swift.Bool
+    public func hash(into hasher: inout Swift.Hasher)
+    public func encode(to encoder: any Swift.Encoder) throws
+    public var hashValue: Swift.Int {
+      get
+    }
+    public init(from decoder: any Swift.Decoder) throws
+  }
+  public struct Buttons : Swift.Codable, Swift.Equatable, Swift.Hashable, Swift.Sendable {
+    public var backgroundColor: UIKit.UIColor?
+    public var textColor: UIKit.UIColor?
+    public var textCase: StorytellerSDK.TextCasing
+    public var cornerRadius: CoreFoundation.CGFloat?
+    public static func == (a: StorytellerSDK.Theme.Buttons, b: StorytellerSDK.Theme.Buttons) -> Swift.Bool
+    public func hash(into hasher: inout Swift.Hasher)
+    public func encode(to encoder: any Swift.Encoder) throws
+    public var hashValue: Swift.Int {
+      get
+    }
+    public init(from decoder: any Swift.Decoder) throws
+  }
+  public struct Instructions : Swift.Codable, Swift.Equatable, Swift.Hashable, Swift.Sendable {
+    public var show: Swift.Bool
+    public var headingColor: UIKit.UIColor?
+    public var headingTextCase: StorytellerSDK.TextCasing
+    public var headingFont: StorytellerSDK.FontProvider?
+    public var subHeadingColor: UIKit.UIColor?
+    public var backgroundColor: UIKit.UIColor?
+    public var icons: StorytellerSDK.InstructionIcons?
+    public var button: StorytellerSDK.Theme.Instructions.Button
+    public struct Button : Swift.Codable, Swift.Equatable, Swift.Hashable, Swift.Sendable {
+      public var textColor: UIKit.UIColor?
+      public var backgroundColor: UIKit.UIColor?
+      public static func == (a: StorytellerSDK.Theme.Instructions.Button, b: StorytellerSDK.Theme.Instructions.Button) -> Swift.Bool
+      public func hash(into hasher: inout Swift.Hasher)
+      public func encode(to encoder: any Swift.Encoder) throws
+      public var hashValue: Swift.Int {
+        get
+      }
+      public init(from decoder: any Swift.Decoder) throws
+    }
+    public static func == (a: StorytellerSDK.Theme.Instructions, b: StorytellerSDK.Theme.Instructions) -> Swift.Bool
+    public func hash(into hasher: inout Swift.Hasher)
+    public func encode(to encoder: any Swift.Encoder) throws
+    public var hashValue: Swift.Int {
+      get
+    }
+    public init(from decoder: any Swift.Decoder) throws
+  }
+  public struct Home : Swift.Codable, Swift.Hashable, Swift.Sendable {
+    public var headerTitle: StorytellerSDK.Theme.Title
+    public var circularTitle: StorytellerSDK.Theme.Home.Title
+    public var rectangularTitle: StorytellerSDK.Theme.Home.RectangularTitles
+    public var singletonTitle: StorytellerSDK.Theme.Home.Title
+    public var gridTitle: StorytellerSDK.Theme.Home.Title
+    public struct Title : Swift.Codable, Swift.Hashable, Swift.Sendable {
+      public var textSize: CoreFoundation.CGFloat?
+      public var lineHeight: CoreFoundation.CGFloat?
+      public func hash(into hasher: inout Swift.Hasher)
+      public static func == (a: StorytellerSDK.Theme.Home.Title, b: StorytellerSDK.Theme.Home.Title) -> Swift.Bool
+      public func encode(to encoder: any Swift.Encoder) throws
+      public var hashValue: Swift.Int {
+        get
+      }
+      public init(from decoder: any Swift.Decoder) throws
+    }
+    public struct RectangularTitles : Swift.Codable, Swift.Hashable, Swift.Sendable {
+      public func hash(into hasher: inout Swift.Hasher)
+      public static func == (a: StorytellerSDK.Theme.Home.RectangularTitles, b: StorytellerSDK.Theme.Home.RectangularTitles) -> Swift.Bool
+      public func encode(to encoder: any Swift.Encoder) throws
+      public var hashValue: Swift.Int {
+        get
+      }
+      public init(from decoder: any Swift.Decoder) throws
+    }
+    public func hash(into hasher: inout Swift.Hasher)
+    public static func == (a: StorytellerSDK.Theme.Home, b: StorytellerSDK.Theme.Home) -> Swift.Bool
+    public func encode(to encoder: any Swift.Encoder) throws
+    public var hashValue: Swift.Int {
+      get
+    }
+    public init(from decoder: any Swift.Decoder) throws
+  }
+  public var colors: StorytellerSDK.Theme.Colors
+  public var customFont: StorytellerSDK.FontProvider
+  public var primitives: StorytellerSDK.Theme.Primitives
+  public var search: StorytellerSDK.Theme.Search
+  public var lists: StorytellerSDK.Theme.Lists
+  public var tiles: StorytellerSDK.Theme.Tiles
+  public var player: StorytellerSDK.Theme.Player
+  public var buttons: StorytellerSDK.Theme.Buttons
+  public var instructions: StorytellerSDK.Theme.Instructions
+  public var engagementUnits: StorytellerSDK.Theme.EngagementUnits
+  public var home: StorytellerSDK.Theme.Home
+  public static func == (a: StorytellerSDK.Theme, b: StorytellerSDK.Theme) -> Swift.Bool
+  public func hash(into hasher: inout Swift.Hasher)
+  public func encode(to encoder: any Swift.Encoder) throws
+  public var hashValue: Swift.Int {
+    get
+  }
+  public init(from decoder: any Swift.Decoder) throws
+}
+extension Swift.Decodable where Self : UIKit.UIColor {
+  public init(from decoder: any Swift.Decoder) throws
+}
+extension Swift.Encodable where Self : UIKit.UIColor {
+  public func encode(to encoder: any Swift.Encoder) throws
+}
+extension UIKit.UIColor : Swift.Codable {
+}
+extension Swift.Decodable where Self : UIKit.UIImage {
+  public init(from decoder: any Swift.Decoder) throws
+}
+extension Swift.Encodable where Self : UIKit.UIImage {
+  public func encode(to encoder: any Swift.Encoder) throws
+}
+extension UIKit.UIImage : Swift.Codable {
+}
+public struct UserInput : Swift.Sendable {
+  public var externalId: Swift.String
+  public init?(externalId: Swift.String? = nil)
+}
+extension StorytellerSDK.UserInput : Swift.Equatable {
+  public static func == (lhs: StorytellerSDK.UserInput, rhs: StorytellerSDK.UserInput) -> Swift.Bool
+}
+@objc @_hasMissingDesignatedInitializers @_Concurrency.MainActor @preconcurrency public class StorytellerStoriesRowView : StorytellerSDK.StorytellerRowView {
+  @inline(never) @_Concurrency.MainActor @preconcurrency public init()
+  @available(*, deprecated, message: "This variable will be removed. Please use the configure(with:) instead")
+  @_Concurrency.MainActor @preconcurrency public var configuration: StorytellerSDK.StorytellerStoriesListConfiguration {
+    get
+    set
+  }
+  @_Concurrency.MainActor @preconcurrency public func configure(with configuration: StorytellerSDK.StorytellerStoriesListConfiguration)
+  @objc override dynamic public func awakeAfter(using coder: Foundation.NSCoder) -> Any?
+  @objc deinit
+}
+@objc @_hasMissingDesignatedInitializers @_Concurrency.MainActor @preconcurrency public class StorytellerStoriesGridView : StorytellerSDK.StorytellerGridView {
+  @_Concurrency.MainActor @preconcurrency public init(isScrollable: Swift.Bool)
+  @available(*, deprecated, message: "This variable will be removed. Please use the configure(with:) instead")
+  @_Concurrency.MainActor @preconcurrency public var configuration: StorytellerSDK.StorytellerStoriesListConfiguration {
+    get
+    set
+  }
+  @_Concurrency.MainActor @preconcurrency public func configure(with configuration: StorytellerSDK.StorytellerStoriesListConfiguration)
+  @objc override dynamic public func awakeAfter(using coder: Foundation.NSCoder) -> Any?
+  @objc deinit
+}
+@objc @_hasMissingDesignatedInitializers @_Concurrency.MainActor @preconcurrency public class StorytellerClipsRowView : StorytellerSDK.StorytellerRowView {
+  @inline(never) @_Concurrency.MainActor @preconcurrency public init()
+  @available(*, deprecated, message: "This variable will be removed. Please use the configure(with:) instead")
+  @_Concurrency.MainActor @preconcurrency public var configuration: StorytellerSDK.StorytellerClipsListConfiguration {
+    get
+    set
+  }
+  @_Concurrency.MainActor @preconcurrency public func configure(with configuration: StorytellerSDK.StorytellerClipsListConfiguration)
+  @objc override dynamic public func awakeAfter(using coder: Foundation.NSCoder) -> Any?
+  @objc deinit
+}
+@objc @_hasMissingDesignatedInitializers @_Concurrency.MainActor @preconcurrency public class StorytellerClipsGridView : StorytellerSDK.StorytellerGridView {
+  @_Concurrency.MainActor @preconcurrency public init(isScrollable: Swift.Bool)
+  @available(*, deprecated, message: "This variable will be removed. Please use the configure(with:) instead")
+  @_Concurrency.MainActor @preconcurrency public var configuration: StorytellerSDK.StorytellerClipsListConfiguration {
+    get
+    set
+  }
+  @_Concurrency.MainActor @preconcurrency public func configure(with configuration: StorytellerSDK.StorytellerClipsListConfiguration)
+  @objc override dynamic public func awakeAfter(using coder: Foundation.NSCoder) -> Any?
+  @objc deinit
+}
+@objc @_hasMissingDesignatedInitializers @_Concurrency.MainActor @preconcurrency public class StorytellerGridView : StorytellerSDK.StorytellerListView {
+  @available(*, unavailable, message: "Don't instantiate a StorytellerGridView directly, rather one of its final subclasses")
+  @_Concurrency.MainActor @preconcurrency public init()
+  @objc @_Concurrency.MainActor @preconcurrency dynamic public var recalculatedSize: CoreFoundation.CGSize
+  @_Concurrency.MainActor @preconcurrency @objc override dynamic public var intrinsicContentSize: CoreFoundation.CGSize {
+    @objc get
+  }
+  @_Concurrency.MainActor @preconcurrency @objc override dynamic public var frame: CoreFoundation.CGRect {
+    @objc get
+    @objc set
+  }
+  @_Concurrency.MainActor @preconcurrency @objc override dynamic public func didMoveToWindow()
+  @objc override dynamic public func awakeFromNib()
+  @objc deinit
+}
+@objc @_inheritsConvenienceInitializers @_Concurrency.MainActor @preconcurrency public class StorytellerHomeView : UIKit.UIView {
+  @available(*, unavailable)
+  @_Concurrency.MainActor @preconcurrency @objc override dynamic public init(frame: CoreFoundation.CGRect)
+  @available(*, unavailable)
+  @_Concurrency.MainActor @preconcurrency @objc required dynamic public init?(coder: Foundation.NSCoder)
+  @available(*, unavailable)
+  @_Concurrency.MainActor @preconcurrency @objc dynamic public init()
+  @_Concurrency.MainActor @preconcurrency public init(configuration: StorytellerSDK.StorytellerHomeConfiguration)
+  @_Concurrency.MainActor @preconcurrency public func reloadData()
+  @objc deinit
+}
+@objc @_hasMissingDesignatedInitializers @_Concurrency.MainActor @preconcurrency public class StorytellerListView : UIKit.UIView {
+  @available(*, unavailable, message: "Don't instantiate a StorytellerListView directly, rather one of its final subclasses")
+  @_Concurrency.MainActor @preconcurrency @objc dynamic public init()
+  @_Concurrency.MainActor weak public var delegate: (any StorytellerSDK.StorytellerListViewDelegate)?
+  @_Concurrency.MainActor @preconcurrency @objc override dynamic public func traitCollectionDidChange(_ previousTraitCollection: UIKit.UITraitCollection?)
+  @_Concurrency.MainActor @preconcurrency public func reloadData()
+  @objc deinit
+}
+public struct StorytellerStoriesListConfiguration : Swift.Codable, Swift.Equatable, Swift.Hashable, Swift.Sendable {
+  public var categories: [Swift.String]
+  public var cellType: StorytellerSDK.StorytellerListViewCellType?
+  public var theme: StorytellerSDK.StorytellerTheme?
+  public var uiStyle: StorytellerSDK.StorytellerStyle?
+  public var displayLimit: Swift.Int?
+  public var visibleTiles: Swift.Double?
+  public init(categories: [Swift.String], cellType: StorytellerSDK.StorytellerListViewCellType? = nil, theme: StorytellerSDK.StorytellerTheme? = nil, uiStyle: StorytellerSDK.StorytellerStyle? = nil, displayLimit: Swift.Int? = nil, visibleTiles: Swift.Double? = nil)
+  public static func == (a: StorytellerSDK.StorytellerStoriesListConfiguration, b: StorytellerSDK.StorytellerStoriesListConfiguration) -> Swift.Bool
+  public func hash(into hasher: inout Swift.Hasher)
+  public func encode(to encoder: any Swift.Encoder) throws
+  public var hashValue: Swift.Int {
+    get
+  }
+  public init(from decoder: any Swift.Decoder) throws
+}
+public struct StorytellerClipsListConfiguration : Swift.Codable, Swift.Equatable, Swift.Hashable, Swift.Sendable {
+  public var collectionId: Swift.String?
+  public var cellType: StorytellerSDK.StorytellerListViewCellType?
+  public var theme: StorytellerSDK.StorytellerTheme?
+  public var uiStyle: StorytellerSDK.StorytellerStyle?
+  public var displayLimit: Swift.Int?
+  public var visibleTiles: Swift.Double?
+  public init(collectionId: Swift.String?, cellType: StorytellerSDK.StorytellerListViewCellType? = nil, theme: StorytellerSDK.StorytellerTheme? = nil, uiStyle: StorytellerSDK.StorytellerStyle? = nil, displayLimit: Swift.Int? = nil, visibleTiles: Swift.Double? = nil)
+  public static func == (a: StorytellerSDK.StorytellerClipsListConfiguration, b: StorytellerSDK.StorytellerClipsListConfiguration) -> Swift.Bool
+  public func hash(into hasher: inout Swift.Hasher)
+  public func encode(to encoder: any Swift.Encoder) throws
+  public var hashValue: Swift.Int {
+    get
+  }
+  public init(from decoder: any Swift.Decoder) throws
+}
+public protocol StorytellerListViewDelegate : AnyObject {
+  func onDataLoadStarted()
+  func onDataLoadComplete(success: Swift.Bool, error: (any Swift.Error)?, dataCount: Swift.Int)
+  func onPlayerDismissed()
+}
+public enum StorytellerListViewError : Swift.Error, Swift.Sendable {
+  case pageNotFound
+  case storyNotFound
+  case storyWithPageNotFound
+  case noStoriesFound
+  case fetchingAdsFailed
+  case fetchingStoriesFailed
+  public static func == (a: StorytellerSDK.StorytellerListViewError, b: StorytellerSDK.StorytellerListViewError) -> Swift.Bool
+  public func hash(into hasher: inout Swift.Hasher)
+  public var hashValue: Swift.Int {
+    get
+  }
+}
+@objc @_hasMissingDesignatedInitializers @_Concurrency.MainActor @preconcurrency public class StorytellerRowView : StorytellerSDK.StorytellerListView {
+  @available(*, unavailable, message: "Don't instantiate a StorytellerRowView directly, rather one of its final subclasses")
+  @_Concurrency.MainActor @preconcurrency public init()
+  @_Concurrency.MainActor @preconcurrency @objc override dynamic public var intrinsicContentSize: CoreFoundation.CGSize {
+    @objc get
+  }
+  @_Concurrency.MainActor @preconcurrency @objc override dynamic public func layoutSubviews()
+  @objc deinit
+}
+public enum StorytellerClipsAction : Swift.Sendable {
+  case onTopLevelBackTapped
+  case onDataLoadStarted
+  case onDataLoadComplete(success: Swift.Bool, error: (any Swift.Error)?)
+}
+public typealias StorytellerListActionCallback = (StorytellerSDK.StorytellerListAction) -> Swift.Void
+public struct StorytellerHomeConfiguration : Swift.Sendable {
+  public init(homeId: Swift.String, theme: StorytellerSDK.StorytellerTheme? = nil, uiStyle: StorytellerSDK.StorytellerStyle? = nil)
+}
+@_Concurrency.MainActor public class StorytellerHomeModel : Combine.ObservableObject {
+  @_Concurrency.MainActor public init(configuration: StorytellerSDK.StorytellerHomeConfiguration)
+  @_Concurrency.MainActor public var configuration: StorytellerSDK.StorytellerHomeConfiguration
+  @_Concurrency.MainActor public func reloadData()
+  public typealias ObjectWillChangePublisher = Combine.ObservableObjectPublisher
+  @objc deinit
+}
+@_Concurrency.MainActor @preconcurrency public struct StorytellerHome : SwiftUICore.View {
+  @_Concurrency.MainActor @preconcurrency public init(model: StorytellerSDK.StorytellerHomeModel)
+  @_Concurrency.MainActor @preconcurrency public var body: some SwiftUICore.View {
+    get
+  }
+  public typealias Body = @_opaqueReturnTypeOf("$s14StorytellerSDK0A4HomeV4bodyQrvp", 0) __
+}
+public enum StorytellerListAction : Swift.Sendable {
+  case onDataLoadStarted
+  case onDataLoadComplete(success: Swift.Bool, error: (any Swift.Error)?, dataCount: Swift.Int)
+  case onPlayerDismissed
+}
+public struct StorytellerStoriesListModel : Swift.Codable, Swift.Equatable, Swift.Hashable, Swift.Sendable {
+  public var configuration: StorytellerSDK.StorytellerStoriesListConfiguration
+  public mutating func reloadData()
+  public static func == (a: StorytellerSDK.StorytellerStoriesListModel, b: StorytellerSDK.StorytellerStoriesListModel) -> Swift.Bool
+  public func hash(into hasher: inout Swift.Hasher)
+  public func encode(to encoder: any Swift.Encoder) throws
+  public var hashValue: Swift.Int {
+    get
+  }
+  public init(from decoder: any Swift.Decoder) throws
+}
+extension StorytellerSDK.StorytellerStoriesListModel {
+  public init(categories: [Swift.String], cellType: StorytellerSDK.StorytellerListViewCellType? = nil, theme: StorytellerSDK.StorytellerTheme? = nil, uiStyle: StorytellerSDK.StorytellerStyle? = nil, displayLimit: Swift.Int? = nil, visibleTiles: Swift.Double? = nil)
+  public init(configuration: StorytellerSDK.StorytellerStoriesListConfiguration)
+}
+public struct StorytellerClipsListModel : Swift.Codable, Swift.Equatable, Swift.Hashable, Swift.Sendable {
+  public var configuration: StorytellerSDK.StorytellerClipsListConfiguration
+  public mutating func reloadData()
+  public static func == (lhs: StorytellerSDK.StorytellerClipsListModel, rhs: StorytellerSDK.StorytellerClipsListModel) -> Swift.Bool
+  public func hash(into hasher: inout Swift.Hasher)
+  public func encode(to encoder: any Swift.Encoder) throws
+  public var hashValue: Swift.Int {
+    get
+  }
+  public init(from decoder: any Swift.Decoder) throws
+}
+extension StorytellerSDK.StorytellerClipsListModel {
+  public init(collectionId: Swift.String?, cellType: StorytellerSDK.StorytellerListViewCellType? = nil, theme: StorytellerSDK.StorytellerTheme? = nil, uiStyle: StorytellerSDK.StorytellerStyle? = nil, displayLimit: Swift.Int? = nil, visibleTiles: Swift.Double? = nil)
+  public init(configuration: StorytellerSDK.StorytellerClipsListConfiguration)
+}
+@_Concurrency.MainActor @preconcurrency public struct StorytellerStoriesRow : SwiftUI.UIViewRepresentable, Swift.Equatable {
+  @_Concurrency.MainActor @preconcurrency public let model: StorytellerSDK.StorytellerStoriesListModel
+  @_Concurrency.MainActor public var action: StorytellerSDK.StorytellerListActionCallback?
+  @_Concurrency.MainActor @preconcurrency public init(model: StorytellerSDK.StorytellerStoriesListModel, action: StorytellerSDK.StorytellerListActionCallback? = nil)
+  @_Concurrency.MainActor @preconcurrency public func makeUIView(context: StorytellerSDK.StorytellerStoriesRow.Context) -> StorytellerSDK.StorytellerStoriesRowView
+  @_Concurrency.MainActor @preconcurrency public func updateUIView(_ uiView: StorytellerSDK.StorytellerStoriesRowView, context: StorytellerSDK.StorytellerStoriesRow.Context)
+  @_Concurrency.MainActor @preconcurrency public func makeCoordinator() -> Swift.AnyObject
+  nonisolated public static func == (lhs: StorytellerSDK.StorytellerStoriesRow, rhs: StorytellerSDK.StorytellerStoriesRow) -> Swift.Bool
+  public typealias Body = Swift.Never
+  public typealias Coordinator = Swift.AnyObject
+  public typealias UIViewType = StorytellerSDK.StorytellerStoriesRowView
+}
+@_Concurrency.MainActor @preconcurrency public struct StorytellerStoriesGrid : SwiftUI.UIViewRepresentable {
+  @_Concurrency.MainActor @preconcurrency public let isScrollable: Swift.Bool
+  @_Concurrency.MainActor @preconcurrency public let model: StorytellerSDK.StorytellerStoriesListModel
+  @_Concurrency.MainActor public var action: StorytellerSDK.StorytellerListActionCallback?
+  @_Concurrency.MainActor @preconcurrency public init(isScrollable: Swift.Bool = false, model: StorytellerSDK.StorytellerStoriesListModel, action: StorytellerSDK.StorytellerListActionCallback? = nil)
+  @_Concurrency.MainActor @preconcurrency public func makeUIView(context: StorytellerSDK.StorytellerStoriesGrid.Context) -> StorytellerSDK.StorytellerStoriesGridView
+  @_Concurrency.MainActor @preconcurrency public func updateUIView(_ uiView: StorytellerSDK.StorytellerStoriesGridView, context: StorytellerSDK.StorytellerStoriesGrid.Context)
+  @_Concurrency.MainActor @preconcurrency public func makeCoordinator() -> Swift.AnyObject
+  public typealias Body = Swift.Never
+  public typealias Coordinator = Swift.AnyObject
+  public typealias UIViewType = StorytellerSDK.StorytellerStoriesGridView
+}
+@_Concurrency.MainActor @preconcurrency public struct StorytellerClipsRow : SwiftUI.UIViewRepresentable, Swift.Equatable {
+  @_Concurrency.MainActor @preconcurrency public let model: StorytellerSDK.StorytellerClipsListModel
+  @_Concurrency.MainActor public var action: StorytellerSDK.StorytellerListActionCallback?
+  @_Concurrency.MainActor @preconcurrency public init(model: StorytellerSDK.StorytellerClipsListModel, action: StorytellerSDK.StorytellerListActionCallback? = nil)
+  @_Concurrency.MainActor @preconcurrency public func makeUIView(context: StorytellerSDK.StorytellerClipsRow.Context) -> StorytellerSDK.StorytellerClipsRowView
+  @_Concurrency.MainActor @preconcurrency public func updateUIView(_ uiView: StorytellerSDK.StorytellerClipsRowView, context: StorytellerSDK.StorytellerClipsRow.Context)
+  @_Concurrency.MainActor @preconcurrency public func makeCoordinator() -> Swift.AnyObject
+  nonisolated public static func == (lhs: StorytellerSDK.StorytellerClipsRow, rhs: StorytellerSDK.StorytellerClipsRow) -> Swift.Bool
+  public typealias Body = Swift.Never
+  public typealias Coordinator = Swift.AnyObject
+  public typealias UIViewType = StorytellerSDK.StorytellerClipsRowView
+}
+@_Concurrency.MainActor @preconcurrency public struct StorytellerClipsGrid : SwiftUI.UIViewRepresentable, Swift.Equatable {
+  @_Concurrency.MainActor @preconcurrency public init(isScrollable: Swift.Bool = false, model: StorytellerSDK.StorytellerClipsListModel, action: StorytellerSDK.StorytellerListActionCallback? = nil)
+  @_Concurrency.MainActor @preconcurrency public let isScrollable: Swift.Bool
+  @_Concurrency.MainActor @preconcurrency public let model: StorytellerSDK.StorytellerClipsListModel
+  @_Concurrency.MainActor public var action: StorytellerSDK.StorytellerListActionCallback?
+  nonisolated public static func == (lhs: StorytellerSDK.StorytellerClipsGrid, rhs: StorytellerSDK.StorytellerClipsGrid) -> Swift.Bool
+  @_Concurrency.MainActor @preconcurrency public func makeUIView(context: StorytellerSDK.StorytellerClipsGrid.Context) -> StorytellerSDK.StorytellerClipsGridView
+  @_Concurrency.MainActor @preconcurrency public func updateUIView(_ uiView: StorytellerSDK.StorytellerClipsGridView, context: StorytellerSDK.StorytellerClipsGrid.Context)
+  @_Concurrency.MainActor @preconcurrency public func makeCoordinator() -> Swift.AnyObject
+  public typealias Body = Swift.Never
+  public typealias Coordinator = Swift.AnyObject
+  public typealias UIViewType = StorytellerSDK.StorytellerClipsGridView
+}
+public class StorytellerClipsModel : Combine.ObservableObject {
+  @available(*, deprecated, message: "This init will be removed. Please use `init(configuration: ClipCollectionConfiguration, topLevelBackButtonEnabled: Bool = false)`")
+  public init(collectionId: Swift.String, initialClipId: Swift.String? = nil, openedReason: StorytellerSDK.StorytellerClipsOpenReason? = nil, topLevelBackButtonEnabled: Swift.Bool = false, theme: StorytellerSDK.StorytellerTheme? = nil)
+  public init(configuration: StorytellerSDK.ClipCollectionConfiguration, topLevelBackButtonEnabled: Swift.Bool = false)
+  @Combine.Published @_projectedValueProperty($configuration) public var configuration: StorytellerSDK.ClipCollectionConfiguration {
+    get
+    @available(iOS 13.0, tvOS 13.0, watchOS 6.0, macOS 10.15, *)
+    set
+  }
+  public var $configuration: Combine.Published<StorytellerSDK.ClipCollectionConfiguration>.Publisher {
+    get
+    @available(iOS 14.0, tvOS 14.0, watchOS 7.0, macOS 11.0, *)
+    set
+  }
+  @Combine.Published @_projectedValueProperty($topLevelBackButtonEnabled) public var topLevelBackButtonEnabled: Swift.Bool {
+    get
+    @available(iOS 13.0, tvOS 13.0, watchOS 6.0, macOS 10.15, *)
+    set
+  }
+  public var $topLevelBackButtonEnabled: Combine.Published<Swift.Bool>.Publisher {
+    get
+    @available(iOS 14.0, tvOS 14.0, watchOS 7.0, macOS 11.0, *)
+    set
+  }
+  @available(*, deprecated, message: "This property will be removed. Please use `configuration`")
+  @Combine.Published @_projectedValueProperty($collectionId) public var collectionId: Swift.String {
+    get
+    @available(*, deprecated, message: "This property will be removed. Please use `configuration`")
+    @available(iOS, introduced: 13.0, message: "This property will be removed. Please use `configuration`")
+    @available(tvOS, introduced: 13.0, message: "This property will be removed. Please use `configuration`")
+    @available(watchOS, introduced: 6.0, message: "This property will be removed. Please use `configuration`")
+    @available(macOS, introduced: 10.15, message: "This property will be removed. Please use `configuration`")
+    set
+  }
+  public var $collectionId: Combine.Published<Swift.String>.Publisher {
+    get
+    @available(iOS 14.0, tvOS 14.0, watchOS 7.0, macOS 11.0, *)
+    set
+  }
+  @_Concurrency.MainActor public var canGoBack: Swift.Bool {
+    get
+  }
+  public func reloadData()
+  public func willShow()
+  public func willHide()
+  public typealias ObjectWillChangePublisher = Combine.ObservableObjectPublisher
+  @objc deinit
+}
+@_Concurrency.MainActor @preconcurrency public struct StorytellerClipsView : SwiftUI.UIViewControllerRepresentable {
+  @_Concurrency.MainActor @preconcurrency public init(model: StorytellerSDK.StorytellerClipsModel, action: ((StorytellerSDK.StorytellerClipsAction) -> Swift.Void)? = nil)
+  @SwiftUICore.ObservedObject @_projectedValueProperty($model) @_Concurrency.MainActor @preconcurrency public var model: StorytellerSDK.StorytellerClipsModel {
+    get
+    @available(iOS 13.0, tvOS 13.0, watchOS 6.0, macOS 10.15, *)
+    set
+    @available(iOS 13.0, tvOS 13.0, watchOS 6.0, macOS 10.15, *)
+    _modify
+  }
+  @_Concurrency.MainActor @preconcurrency public var $model: SwiftUICore.ObservedObject<StorytellerSDK.StorytellerClipsModel>.Wrapper {
+    get
+  }
+  @_Concurrency.MainActor public var action: ((StorytellerSDK.StorytellerClipsAction) -> Swift.Void)?
+  @_Concurrency.MainActor @preconcurrency public func makeUIViewController(context: StorytellerSDK.StorytellerClipsView.Context) -> StorytellerSDK.StorytellerClipsViewController
+  @_Concurrency.MainActor @preconcurrency public func updateUIViewController(_ uiViewController: StorytellerSDK.StorytellerClipsViewController, context: StorytellerSDK.StorytellerClipsView.Context)
+  @_Concurrency.MainActor @preconcurrency public func makeCoordinator() -> Swift.AnyObject
+  public typealias Body = Swift.Never
+  public typealias Coordinator = Swift.AnyObject
+  public typealias UIViewControllerType = StorytellerSDK.StorytellerClipsViewController
+}
+extension Foundation.Timer : @unchecked Swift.Sendable {
+}
+extension StorytellerSDK.Theme.Gradient.GradientPosition : Swift.Equatable {}
+extension StorytellerSDK.Theme.Gradient.GradientPosition : Swift.Hashable {}
+extension StorytellerSDK.StorytellerActionType : Swift.RawRepresentable {}
+extension StorytellerSDK.UserActivity.EventType : Swift.Equatable {}
+extension StorytellerSDK.UserActivity.EventType : Swift.Hashable {}
+extension StorytellerSDK.UserActivity.EventType : Swift.RawRepresentable {}
+extension StorytellerSDK.StorytellerClipsOpenReason : Swift.Equatable {}
+extension StorytellerSDK.StorytellerClipsOpenReason : Swift.Hashable {}
+extension StorytellerSDK.StorytellerListViewCellType : Swift.RawRepresentable {}
+extension StorytellerSDK.Alignment : Swift.Equatable {}
+extension StorytellerSDK.Alignment : Swift.Hashable {}
+extension StorytellerSDK.Alignment : Swift.RawRepresentable {}
+extension StorytellerSDK.StorytellerFontWeight : Swift.Equatable {}
+extension StorytellerSDK.StorytellerFontWeight : Swift.Hashable {}
+extension StorytellerSDK.StorytellerStyle : Swift.RawRepresentable {}
+extension StorytellerSDK.TextCasing : Swift.RawRepresentable {}
+extension StorytellerSDK.StorytellerListViewError : Swift.Equatable {}
+extension StorytellerSDK.StorytellerListViewError : Swift.Hashable {}
+extension StorytellerSDK.StorytellerHomeModel : Swift.Sendable {}
+extension StorytellerSDK.StorytellerHome : Swift.Sendable {}
+extension StorytellerSDK.StorytellerStoriesRow : Swift.Sendable {}
+extension StorytellerSDK.StorytellerStoriesGrid : Swift.Sendable {}
+extension StorytellerSDK.StorytellerClipsRow : Swift.Sendable {}
+extension StorytellerSDK.StorytellerClipsGrid : Swift.Sendable {}
+extension StorytellerSDK.StorytellerClipsView : Swift.Sendable {}
