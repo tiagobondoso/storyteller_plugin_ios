@@ -48,4 +48,34 @@ class CDVStoryteller: CDVPlugin {
             self.commandDelegate.send(pluginResult, callbackId: command.callbackId)
         }
     }
+
+    // MARK: - Open story by id or externalId
+    // JS usage: openStoryById(idOrExternalId)
+    @objc(openStoryById:)
+    func openStoryById(_ command: CDVInvokedUrlCommand) {
+        guard let id = command.argument(at: 0) as? String, !id.isEmpty else {
+            let pluginResult = CDVPluginResult(status: .error, messageAs: "Story ID is missing.")
+            self.commandDelegate.send(pluginResult, callbackId: command.callbackId)
+            return
+        }
+
+        Task { @MainActor in
+            do {
+                // Try to open by internal id first, if it throws try externalId
+                do {
+                    try await Storyteller.openStory(id: id)
+                } catch {
+                    // If opening by id fails, attempt externalId fallback
+                    try await Storyteller.openStory(externalId: id)
+                }
+
+                let result = CDVPluginResult(status: .ok, messageAs: "Story opened: \(id)")
+                self.commandDelegate.send(result, callbackId: command.callbackId)
+            } catch {
+                print("openStory error: \(error)")
+                let result = CDVPluginResult(status: .error, messageAs: error.localizedDescription)
+                self.commandDelegate.send(result, callbackId: command.callbackId)
+            }
+        }
+    }
 }
