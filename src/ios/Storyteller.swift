@@ -202,15 +202,17 @@ class CDVStoryteller: CDVPlugin {
         }
     }
 
+
     // JS usage: getFollowedCategories()
     @objc(getFollowedCategories:)
     func getFollowedCategories(_ command: CDVInvokedUrlCommand) {
         Task { @MainActor in
-            let cats = Storyteller.user.followedCategories
+            let cats = Storyteller.shared.user.getFollowedCategories()
             let result = CDVPluginResult(status: .ok, messageAs: cats)
             self.commandDelegate.send(result, callbackId: command.callbackId)
         }
     }
+
 
     // JS usage: isCategoryFollowed(categoryId)
     @objc(isCategoryFollowed:)
@@ -222,7 +224,7 @@ class CDVStoryteller: CDVPlugin {
         }
 
         Task { @MainActor in
-            let isFollowing = Storyteller.user.followedCategories.contains(category)
+            let isFollowing = Storyteller.shared.user.isCategoryFollowed(category)
             let result = CDVPluginResult(status: .ok, messageAs: isFollowing)
             self.commandDelegate.send(result, callbackId: command.callbackId)
         }
