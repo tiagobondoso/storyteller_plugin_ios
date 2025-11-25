@@ -239,4 +239,44 @@ class CDVStoryteller: CDVPlugin {
                 }
             }
     }*/
+
+        // MARK: - Show Custom Storyteller List View
+    // JS usage: showCustomStorytellerListView(options)
+    @objc(showCustomStorytellerListView:)
+    func showCustomStorytellerListView(_ command: CDVInvokedUrlCommand) {
+        guard let options = command.argument(at: 0) as? [String: Any] else {
+            let result = CDVPluginResult(status: .error, messageAs: "Options dictionary is required.")
+            self.commandDelegate.send(result, callbackId: command.callbackId)
+            return
+        }
+
+        let categories = options["categories"] as? [String] ?? []
+        let cellType = options["cellType"] as? String ?? "default"
+        let theme = options["theme"] as? String ?? "default"
+        let uiStyle = options["uiStyle"] as? String ?? "horizontal"
+        let displayLimit = options["displayLimit"] as? Int ?? 10
+        let offset = options["offset"] as? Int ?? 0
+        let visibleTitles = options["visibleTitles"] as? Bool ?? true
+        let context = options["context"] as? String ?? ""
+
+        let config = StorytellerListViewConfig(
+            categories: categories,
+            cellType: StorytellerListViewCellType(rawValue: cellType),
+            theme: StorytellerListViewTheme(rawValue: theme),
+            uiStyle: StorytellerListViewUIStyle(rawValue: uiStyle),
+            displayLimit: displayLimit,
+            offset: offset,
+            visibleTitles: visibleTitles,
+            context: context
+        )
+
+        DispatchQueue.main.async {
+            let listVC = StorytellerListViewController(config: config)
+            listVC.modalPresentationStyle = .fullScreen
+            self.viewController.present(listVC, animated: true, completion: nil)
+
+            let result = CDVPluginResult(status: .ok, messageAs: "Custom Storyteller list view presented.")
+            self.commandDelegate.send(result, callbackId: command.callbackId)
+        }
+    }
 }
