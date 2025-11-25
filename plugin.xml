@@ -13,8 +13,9 @@
     <js-module src="www/storyteller.js" name="Storyteller">
         <clobbers target="cordova.plugins.storyteller" />
     </js-module>
-    
+
     <platform name="ios">
+        <preference name="SwiftVersion" value="5.0" />
         <config-file target="config.xml" parent="/*">
             <feature name="Storyteller">
                 <param name="ios-package" value="CDVStoryteller" />

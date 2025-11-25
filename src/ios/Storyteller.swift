@@ -240,7 +240,7 @@ class CDVStoryteller: CDVPlugin {
             }
     }*/
 
-        // MARK: - Show Custom Storyteller List View
+    // MARK: - Show Custom Storyteller List View
     // JS usage: showCustomStorytellerListView(options)
     @objc(showCustomStorytellerListView:)
     func showCustomStorytellerListView(_ command: CDVInvokedUrlCommand) {
