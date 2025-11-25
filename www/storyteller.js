@@ -1,29 +1,5 @@
 var exec = require('cordova/exec');
 
-var Storyteller = {
-    // Inicializar o SDK
-    initialize: function(apiKey, userId, successCallback, errorCallback) {
-        exec(successCallback, errorCallback, 'Storyteller', 'initializeSDK', [apiKey, userId]);
-    },
-
-    // Exibir a View nativa do Storyteller
-    showStorytellerView: function(successCallback, errorCallback) {
-        exec(successCallback, errorCallback, 'Storyteller', 'showStorytellerView', []);
-    }
-};
-
-// Abre um story pelo id ou externalId.
-// Retorna uma Promise; também aceita callbacks (success, error) para compatibilidade.
-Storyteller.openStoryById = function(id, successCallback, errorCallback) {
-    if (typeof id !== 'string' || id.length === 0) {
-        const err = 'Story ID is required';
-        if (typeof errorCallback === 'function') errorCallback(err);
-        return Promise.reject(err);
-    }
-
-    return execPromise('openStoryById', [id], successCallback, errorCallback);
-};
-
 // Define helper to wrap exec into Promise + optional callbacks
 function execPromise(action, args, successCallback, errorCallback) {
     return new Promise(function(resolve, reject) {
@@ -36,6 +12,40 @@ function execPromise(action, args, successCallback, errorCallback) {
         }, 'Storyteller', action, args || []);
     });
 }
+
+var Storyteller = {};
+
+// Inicializar o SDK
+Storyteller.initialize = function(apiKey, userId, successCallback, errorCallback) {
+    if (typeof apiKey !== 'string' || apiKey.length === 0) {
+        const err = 'API key is required';
+        if (typeof errorCallback === 'function') errorCallback(err);
+        return Promise.reject(err);
+    }
+    if (typeof userId !== 'string' || userId.length === 0) {
+        const err = 'User ID is required';
+        if (typeof errorCallback === 'function') errorCallback(err);
+        return Promise.reject(err);
+    }
+
+    return execPromise('initializeSDK', [apiKey, userId], successCallback, errorCallback);
+};
+
+// Exibir a View nativa do Storyteller
+Storyteller.showStorytellerView = function(successCallback, errorCallback) {
+    return execPromise('showStorytellerView', [], successCallback, errorCallback);
+};
+
+// Abre um story pelo id ou externalId.
+Storyteller.openStoryById = function(id, successCallback, errorCallback) {
+    if (typeof id !== 'string' || id.length === 0) {
+        const err = 'Story ID is required';
+        if (typeof errorCallback === 'function') errorCallback(err);
+        return Promise.reject(err);
+    }
+
+    return execPromise('openStoryById', [id], successCallback, errorCallback);
+};
 
 // Set user locale (string or null to clear)
 Storyteller.setLocale = function(locale, successCallback, errorCallback) {
@@ -60,6 +70,7 @@ Storyteller.removeUserCustomAttribute = function(key, successCallback, errorCall
     }
     return execPromise('removeUserCustomAttribute', [key], successCallback, errorCallback);
 };
+
 
 // Followed categories
 Storyteller.addFollowedCategory = function(categoryId, successCallback, errorCallback) {
@@ -88,5 +99,30 @@ Storyteller.removeFollowedCategory = function(categoryId, successCallback, error
     }
     return execPromise('removeFollowedCategory', [categoryId], successCallback, errorCallback);
 };
+
+Storyteller.removeFollowedCategories = function(categories, successCallback, errorCallback) {
+    if (!Array.isArray(categories) || categories.length === 0) {
+        const err = 'Categories array is required';
+        if (typeof errorCallback === 'function') errorCallback(err);
+        return Promise.reject(err);
+    }
+    return execPromise('removeFollowedCategories', [categories], successCallback, errorCallback);
+};
+
+// Get followed categories (returns array of category ids)
+Storyteller.getFollowedCategories = function(successCallback, errorCallback) {
+    return execPromise('getFollowedCategories', [], successCallback, errorCallback);
+};
+
+// Check if a category is followed
+Storyteller.isCategoryFollowed = function(categoryId, successCallback, errorCallback) {
+    if (typeof categoryId !== 'string' || categoryId.length === 0) {
+        const err = 'Category id is required';
+        if (typeof errorCallback === 'function') errorCallback(err);
+        return Promise.reject(err);
+    }
+    return execPromise('isCategoryFollowed', [categoryId], successCallback, errorCallback);
+};
+
 
 module.exports = Storyteller;

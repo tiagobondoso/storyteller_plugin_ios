@@ -102,7 +102,7 @@ class CDVStoryteller: CDVPlugin {
         }
     }
 
-    // MARK: - User customization (custom attributes and followed categories)
+    // MARK: - User customization (custom attributes)
     // JS usage: setUserCustomAttribute(key, value)
     @objc(setUserCustomAttribute:)
     func setUserCustomAttribute(_ command: CDVInvokedUrlCommand) {
@@ -136,6 +136,8 @@ class CDVStoryteller: CDVPlugin {
         }
     }
 
+
+    // MARK: - User customization (followed categories)
     // JS usage: addFollowedCategory(categoryId)
     @objc(addFollowedCategory:)
     func addFollowedCategory(_ command: CDVInvokedUrlCommand) {
@@ -180,6 +182,48 @@ class CDVStoryteller: CDVPlugin {
         Task { @MainActor in
             Storyteller.user.removeFollowedCategory(category)
             let result = CDVPluginResult(status: .ok, messageAs: "Category removed")
+            self.commandDelegate.send(result, callbackId: command.callbackId)
+        }
+    }
+
+    // JS usage: removeFollowedCategories(arrayOfCategoryIds)
+    @objc(removeFollowedCategories:)
+    func removeFollowedCategories(_ command: CDVInvokedUrlCommand) {
+        guard let categories = command.argument(at: 0) as? [String], !categories.isEmpty else {
+            let result = CDVPluginResult(status: .error, messageAs: "Categories array is required.")
+            self.commandDelegate.send(result, callbackId: command.callbackId)
+            return
+        }
+
+        Task { @MainActor in
+            Storyteller.user.addFollowedCategories(categories)
+            let result = CDVPluginResult(status: .ok, messageAs: "Categories added")
+            self.commandDelegate.send(result, callbackId: command.callbackId)
+        }
+    }
+
+    // JS usage: getFollowedCategories()
+    @objc(getFollowedCategories:)
+    func getFollowedCategories(_ command: CDVInvokedUrlCommand) {
+        Task { @MainActor in
+            let cats = Storyteller.user.followedCategories
+            let result = CDVPluginResult(status: .ok, messageAs: cats)
+            self.commandDelegate.send(result, callbackId: command.callbackId)
+        }
+    }
+
+    // JS usage: isCategoryFollowed(categoryId)
+    @objc(isCategoryFollowed:)
+    func isCategoryFollowed(_ command: CDVInvokedUrlCommand) {
+        guard let category = command.argument(at: 0) as? String, !category.isEmpty else {
+            let result = CDVPluginResult(status: .error, messageAs: "Category id is required.")
+            self.commandDelegate.send(result, callbackId: command.callbackId)
+            return
+        }
+
+        Task { @MainActor in
+            let isFollowing = Storyteller.user.followedCategories.contains(category)
+            let result = CDVPluginResult(status: .ok, messageAs: isFollowing)
             self.commandDelegate.send(result, callbackId: command.callbackId)
         }
     }

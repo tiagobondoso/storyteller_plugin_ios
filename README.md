@@ -14,6 +14,8 @@ cordova plugin add path/to/storyteller_plugin_ios
 All methods return a Promise and also accept optional success and error callbacks for backwards compatibility.
 The plugin is exposed at `cordova.plugins.storyteller` (see `plugin.xml`).
 
+Important: all functions support both callback-style and Promise/async-await style. Prefer `await`/Promises in new code.
+
 ### initialize(apiKey, userId)
 Initialize the SDK for a user.
 
@@ -51,6 +53,12 @@ Set the user's locale (e.g., 'pt-PT', or null to clear).
 cordova.plugins.storyteller.setLocale('pt-PT');
 ```
 
+Example using async/await:
+
+```javascript
+await cordova.plugins.storyteller.setLocale('pt-PT');
+```
+
 ### User customization
 - setUserCustomAttribute(key, value)
 - removeUserCustomAttribute(key)
@@ -72,6 +80,21 @@ cordova.plugins.storyteller.addFollowedCategories(['cat-a', 'cat-b']);
 ## Notes
 - This plugin uses the Storyteller iOS SDK; ensure the SDK and its frameworks are included in the plugin's `plugin.xml` (already configured).
 - To test these functions, build and run the Cordova app on an iOS device or simulator using Xcode / `cordova emulate ios`.
+
+## Example: full flow (async/await)
+
+```javascript
+async function runExample() {
+  try {
+    await cordova.plugins.storyteller.initialize('API_KEY', 'user-123');
+    await cordova.plugins.storyteller.setUserCustomAttribute('tier', 'premium');
+    await cordova.plugins.storyteller.addFollowedCategories(['cat-a', 'cat-b']);
+    await cordova.plugins.storyteller.openStoryById('story-123');
+  } catch (err) {
+    console.error('Storyteller error', err);
+  }
+}
+```
 
 ## Troubleshooting
 If you get runtime errors about missing symbols, make sure the Storyteller SDK framework is present and embedded in your iOS project.
