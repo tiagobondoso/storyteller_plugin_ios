@@ -207,9 +207,14 @@ class CDVStoryteller: CDVPlugin {
     @objc(getFollowedCategories:)
     func getFollowedCategories(_ command: CDVInvokedUrlCommand) {
         Task { @MainActor in
-                let cats = Storyteller.user.getFollowedCategories()
-            let result = CDVPluginResult(status: .ok, messageAs: cats)
-            self.commandDelegate.send(result, callbackId: command.callbackId)
+            do {
+                let cats = try await Storyteller.user.getFollowedCategories()
+                let result = CDVPluginResult(status: .ok, messageAs: cats)
+                self.commandDelegate.send(result, callbackId: command.callbackId)
+            } catch {
+                let result = CDVPluginResult(status: .error, messageAs: error.localizedDescription)
+                self.commandDelegate.send(result, callbackId: command.callbackId)
+            }
         }
     }
 
@@ -223,10 +228,15 @@ class CDVStoryteller: CDVPlugin {
             return
         }
 
-        Task { @MainActor in
-                let isFollowing = Storyteller.user.isCategoryFollowed(category)
-            let result = CDVPluginResult(status: .ok, messageAs: isFollowing)
-            self.commandDelegate.send(result, callbackId: command.callbackId)
-        }
+            Task { @MainActor in
+                do {
+                    let isFollowing = try await Storyteller.user.isCategoryFollowed(category)
+                    let result = CDVPluginResult(status: .ok, messageAs: isFollowing)
+                    self.commandDelegate.send(result, callbackId: command.callbackId)
+                } catch {
+                    let result = CDVPluginResult(status: .error, messageAs: error.localizedDescription)
+                    self.commandDelegate.send(result, callbackId: command.callbackId)
+                }
+            }
     }
 }
