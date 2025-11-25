@@ -251,19 +251,40 @@ class CDVStoryteller: CDVPlugin {
         }
 
         let categories = options["categories"] as? [String] ?? []
-        let cellType = options["cellType"] as? String ?? "default"
-        let theme = options["theme"] as? String ?? "default"
-        let uiStyle = options["uiStyle"] as? String ?? "horizontal"
+        let cellTypeStr = options["cellType"] as? String ?? "default"
+        let themeStr = options["theme"] as? String ?? "default"
+        let uiStyleStr = options["uiStyle"] as? String ?? "horizontal"
         let displayLimit = options["displayLimit"] as? Int ?? 10
         let offset = options["offset"] as? Int ?? 0
         let visibleTitles = options["visibleTitles"] as? Bool ?? true
         let context = options["context"] as? String ?? ""
 
+        // Map string to enum case, fallback to .default/.horizontal
+        let cellType: StorytellerListViewCellType
+        switch cellTypeStr.lowercased() {
+        case "compact": cellType = .compact
+        case "large": cellType = .large
+        default: cellType = .default
+        }
+
+        let theme: StorytellerListViewTheme
+        switch themeStr.lowercased() {
+        case "light": theme = .light
+        case "dark": theme = .dark
+        default: theme = .default
+        }
+
+        let uiStyle: StorytellerListViewUIStyle
+        switch uiStyleStr.lowercased() {
+        case "vertical": uiStyle = .vertical
+        default: uiStyle = .horizontal
+        }
+
         let config = StorytellerListViewConfig(
             categories: categories,
-            cellType: StorytellerListViewCellType(rawValue: cellType),
-            theme: StorytellerListViewTheme(rawValue: theme),
-            uiStyle: StorytellerListViewUIStyle(rawValue: uiStyle),
+            cellType: cellType,
+            theme: theme,
+            uiStyle: uiStyle,
             displayLimit: displayLimit,
             offset: offset,
             visibleTitles: visibleTitles,
