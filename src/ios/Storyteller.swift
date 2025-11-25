@@ -202,9 +202,9 @@ class CDVStoryteller: CDVPlugin {
         }
     }
 
-
+    // COM ESTE CÓDIGO DÁ ERROS A GERAR A BUILD
     // JS usage: getFollowedCategories()
-    @objc(getFollowedCategories:)
+    /* @objc(getFollowedCategories:)
     func getFollowedCategories(_ command: CDVInvokedUrlCommand) {
         Task { @MainActor in
             do {
@@ -238,5 +238,5 @@ class CDVStoryteller: CDVPlugin {
                     self.commandDelegate.send(result, callbackId: command.callbackId)
                 }
             }
-    }
+    }*/
 }

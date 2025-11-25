@@ -109,6 +109,8 @@ Storyteller.removeFollowedCategories = function(categories, successCallback, err
     return execPromise('removeFollowedCategories', [categories], successCallback, errorCallback);
 };
 
+// COM ESTE CÓDIGO DÁ ERROS A GERAR A BUILD
+/*
 // Get followed categories (returns array of category ids)
 Storyteller.getFollowedCategories = function(successCallback, errorCallback) {
     return execPromise('getFollowedCategories', [], successCallback, errorCallback);
@@ -123,6 +125,6 @@ Storyteller.isCategoryFollowed = function(categoryId, successCallback, errorCall
     }
     return execPromise('isCategoryFollowed', [categoryId], successCallback, errorCallback);
 };
-
+*/
 
 module.exports = Storyteller;
