@@ -245,11 +245,8 @@ class CDVStoryteller: CDVPlugin {
     // JS usage: showStoriesRowView()
     @objc(showStoriesRowView:)
     func showStoriesRowView(_ command: CDVInvokedUrlCommand) {
-
-        guard let categories = command.argument(at: 0) as? [String]
-
         DispatchQueue.main.async {
-            let vc = StoriesRowViewController(categories: categories)
+            let vc = StoriesRowViewController()
             vc.modalPresentationStyle = .fullScreen
             self.viewController.present(vc, animated: true, completion: nil)
 
@@ -260,32 +257,10 @@ class CDVStoryteller: CDVPlugin {
 
     // Private UIViewController to host StorytellerStoriesRowView
     private class StoriesRowViewController: UIViewController {
-
-        let categories: [String]
-
-        init(categories: [String]) {
-            self.categories = categories
-            super.init(nibName: nil, bundle: nil)
-        }
-
-        required init?(coder: NSCoder) {
-            fatalError("init(coder:) has not been implemented")
-        }
-
         override func viewDidLoad() {
             super.viewDidLoad()
             view.backgroundColor = .systemBackground
-
-            let config = StorytellerStoriesListConfiguration(
-                categories: categories, 
-                cellType: .round,
-                theme: .light,
-                uiStyle: .auto,
-                displayLimit: 20
-            )
-
-            storiesRow.configure(with: config)
-            storiesRow.reloadData()
+            let storiesRow = StorytellerStoriesRowView()
             storiesRow.translatesAutoresizingMaskIntoConstraints = false
             view.addSubview(storiesRow)
             NSLayoutConstraint.activate([
