@@ -285,17 +285,6 @@ class CDVStoryteller: CDVPlugin {
                 displayLimit: 20
             )
 
-        // Stories configuration with context
-storytellerStoriesRow.configure(with: StorytellerStoriesListConfiguration(
-    categories: ["sports", "entertainment"],
-    context: [
-        "source": "home-screen-stories",
-        "campaign": "summer-league"
-    ]
-))
-
-
-
             storiesRow.configure(with: config)
             storiesRow.reloadData()
             storiesRow.translatesAutoresizingMaskIntoConstraints = false
