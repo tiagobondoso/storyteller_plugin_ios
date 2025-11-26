@@ -240,61 +240,16 @@ class CDVStoryteller: CDVPlugin {
             }
     }*/
 
-     // MARK: - UIKit Stories Row View (Full Configurable)
+    // MARK: - UIKit Stories Row View (SDK-compatible)
     // JS usage: showStoriesRowView(options)
-    // options: {
-    //   categories: [String],
-    //   context: [String: String],
-    //   cellType: String,
-    //   theme: String,
-    //   uiStyle: String,
-    //   displayLimit: Int,
-    //   offset: Int,
-    //   visibleTitles: Bool
-    // }
+    // options: { categories: [String], context: [String: String] }
     @objc(showStoriesRowView:)
     func showStoriesRowView(_ command: CDVInvokedUrlCommand) {
         let options = command.argument(at: 0) as? [String: Any] ?? [:]
         let categories = options["categories"] as? [String] ?? []
         let context = options["context"] as? [String: String] ?? [:]
-        let cellTypeStr = options["cellType"] as? String ?? "default"
-        let themeStr = options["theme"] as? String ?? "default"
-        let uiStyleStr = options["uiStyle"] as? String ?? "horizontal"
-        let displayLimit = options["displayLimit"] as? Int ?? 10
-        let offset = options["offset"] as? Int ?? 0
-        let visibleTitles = options["visibleTitles"] as? Bool ?? true
 
-        // Map string to enum case, fallback to .default/.horizontal
-        let cellType: StorytellerStoriesListCellType
-        switch cellTypeStr.lowercased() {
-        case "compact": cellType = .compact
-        case "large": cellType = .large
-        default: cellType = .default
-        }
-
-        let theme: StorytellerStoriesListTheme
-        switch themeStr.lowercased() {
-        case "light": theme = .light
-        case "dark": theme = .dark
-        default: theme = .default
-        }
-
-        let uiStyle: StorytellerStoriesListUIStyle
-        switch uiStyleStr.lowercased() {
-        case "vertical": uiStyle = .vertical
-        default: uiStyle = .horizontal
-        }
-
-        let config = StorytellerStoriesListConfiguration(
-            categories: categories,
-            context: context,
-            cellType: cellType,
-            theme: theme,
-            uiStyle: uiStyle,
-            displayLimit: displayLimit,
-            offset: offset,
-            visibleTitles: visibleTitles
-        )
+        let config = StorytellerStoriesListConfiguration(categories: categories, context: context)
         let vc = StorytellerStoriesRowViewController(config: config)
         vc.modalPresentationStyle = .fullScreen
         DispatchQueue.main.async {
