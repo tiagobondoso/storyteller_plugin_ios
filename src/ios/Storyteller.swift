@@ -240,16 +240,47 @@ class CDVStoryteller: CDVPlugin {
             }
     }*/
 
-    // MARK: - UIKit Stories Row View (SDK-compatible)
+    // MARK: - UIKit Stories Row View (Full SDK Options)
     // JS usage: showStoriesRowView(options)
-    // options: { categories: [String], context: [String: String] }
+    // options: { categories, cellType, theme, uiStyle, displayLimit, offset, visibleTiles, context }
     @objc(showStoriesRowView:)
     func showStoriesRowView(_ command: CDVInvokedUrlCommand) {
         let options = command.argument(at: 0) as? [String: Any] ?? [:]
         let categories = options["categories"] as? [String] ?? []
-        let context = options["context"] as? [String: String] ?? [:]
+        let cellTypeStr = options["cellType"] as? String ?? "round"
+        let themeStr = options["theme"] as? String ?? "light"
+        let uiStyleStr = options["uiStyle"] as? String ?? "auto"
+        let displayLimit = options["displayLimit"] as? Int
+        let offset = options["offset"] as? Int
+        let visibleTiles = options["visibleTiles"] as? Int
+        let context = options["context"] as? [String: String]
 
-        let config = StorytellerStoriesListConfiguration(categories: categories, context: context)
+        // Map string to enum
+        let cellType: StorytellerCellType = (cellTypeStr.lowercased() == "rectangular") ? .rectangular : .round
+        let theme: StorytellerTheme
+        switch themeStr.lowercased() {
+            case "dark": theme = .dark
+            case "light": theme = .light
+            default: theme = .light
+        }
+        let uiStyle: StorytellerUIStyle
+        switch uiStyleStr.lowercased() {
+            case "dark": uiStyle = .dark
+            case "light": uiStyle = .light
+            default: uiStyle = .auto
+        }
+
+        let config = StorytellerStoriesListConfiguration(
+            categories: categories,
+            cellType: cellType,
+            theme: theme,
+            uiStyle: uiStyle,
+            displayLimit: displayLimit,
+            offset: offset,
+            visibleTiles: visibleTiles,
+            context: context
+        )
+
         let vc = StorytellerStoriesRowViewController(config: config)
         vc.modalPresentationStyle = .fullScreen
         DispatchQueue.main.async {
@@ -272,7 +303,7 @@ class CDVStoryteller: CDVPlugin {
         override func viewDidLoad() {
             super.viewDidLoad()
             view.backgroundColor = .systemBackground
-            let storiesRow = StorytellerStoriesRow()
+            let storiesRow = StorytellerStoriesRowView()
             storiesRow.configure(with: config)
             storiesRow.translatesAutoresizingMaskIntoConstraints = false
             view.addSubview(storiesRow)
