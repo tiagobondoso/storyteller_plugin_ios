@@ -109,14 +109,13 @@ Storyteller.removeFollowedCategories = function(categories, successCallback, err
     return execPromise('removeFollowedCategories', [categories], successCallback, errorCallback);
 };
 
-// Show Custom Storyteller List View
-Storyteller.showCustomStorytellerListView = function(options, successCallback, errorCallback) {
+Storyteller.showStoriesRowView = function(options, successCallback, errorCallback) {
     if (typeof options !== 'object' || options === null) {
         const err = 'Options object is required';
         if (typeof errorCallback === 'function') errorCallback(err);
         return Promise.reject(err);
     }
-    return execPromise('showCustomStorytellerListView', [options], successCallback, errorCallback);
+    return execPromise('showStoriesRowView', [options], successCallback, errorCallback);
 };
 
 // COM ESTE CÓDIGO DÁ ERROS A GERAR A BUILD

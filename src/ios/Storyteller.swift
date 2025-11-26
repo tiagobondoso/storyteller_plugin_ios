@@ -240,64 +240,93 @@ class CDVStoryteller: CDVPlugin {
             }
     }*/
 
-    // MARK: - Show Custom Storyteller List View
-    // JS usage: showCustomStorytellerListView(options)
-    @objc(showCustomStorytellerListView:)
-    func showCustomStorytellerListView(_ command: CDVInvokedUrlCommand) {
-        guard let options = command.argument(at: 0) as? [String: Any] else {
-            let result = CDVPluginResult(status: .error, messageAs: "Options dictionary is required.")
-            self.commandDelegate.send(result, callbackId: command.callbackId)
-            return
-        }
-
+     // MARK: - UIKit Stories Row View (Full Configurable)
+    // JS usage: showStoriesRowView(options)
+    // options: {
+    //   categories: [String],
+    //   context: [String: String],
+    //   cellType: String,
+    //   theme: String,
+    //   uiStyle: String,
+    //   displayLimit: Int,
+    //   offset: Int,
+    //   visibleTitles: Bool
+    // }
+    @objc(showStoriesRowView:)
+    func showStoriesRowView(_ command: CDVInvokedUrlCommand) {
+        let options = command.argument(at: 0) as? [String: Any] ?? [:]
         let categories = options["categories"] as? [String] ?? []
+        let context = options["context"] as? [String: String] ?? [:]
         let cellTypeStr = options["cellType"] as? String ?? "default"
         let themeStr = options["theme"] as? String ?? "default"
         let uiStyleStr = options["uiStyle"] as? String ?? "horizontal"
         let displayLimit = options["displayLimit"] as? Int ?? 10
         let offset = options["offset"] as? Int ?? 0
         let visibleTitles = options["visibleTitles"] as? Bool ?? true
-        let context = options["context"] as? String ?? ""
 
         // Map string to enum case, fallback to .default/.horizontal
-        let cellType: StorytellerListViewCellType
+        let cellType: StorytellerStoriesListCellType
         switch cellTypeStr.lowercased() {
         case "compact": cellType = .compact
         case "large": cellType = .large
         default: cellType = .default
         }
 
-        let theme: StorytellerListViewTheme
+        let theme: StorytellerStoriesListTheme
         switch themeStr.lowercased() {
         case "light": theme = .light
         case "dark": theme = .dark
         default: theme = .default
         }
 
-        let uiStyle: StorytellerListViewUIStyle
+        let uiStyle: StorytellerStoriesListUIStyle
         switch uiStyleStr.lowercased() {
         case "vertical": uiStyle = .vertical
         default: uiStyle = .horizontal
         }
 
-        let config = StorytellerListViewConfig(
+        let config = StorytellerStoriesListConfiguration(
             categories: categories,
+            context: context,
             cellType: cellType,
             theme: theme,
             uiStyle: uiStyle,
             displayLimit: displayLimit,
             offset: offset,
-            visibleTitles: visibleTitles,
-            context: context
+            visibleTitles: visibleTitles
         )
-
+        let vc = StorytellerStoriesRowViewController(config: config)
+        vc.modalPresentationStyle = .fullScreen
         DispatchQueue.main.async {
-            let listVC = StorytellerListViewController(config: config)
-            listVC.modalPresentationStyle = .fullScreen
-            self.viewController.present(listVC, animated: true, completion: nil)
+            self.viewController.present(vc, animated: true, completion: nil)
+            let pluginResult = CDVPluginResult(status: .ok, messageAs: "Stories row view presented.")
+            self.commandDelegate.send(pluginResult, callbackId: command.callbackId)
+        }
+    }
 
-            let result = CDVPluginResult(status: .ok, messageAs: "Custom Storyteller list view presented.")
-            self.commandDelegate.send(result, callbackId: command.callbackId)
+    // UIKit wrapper for StorytellerStoriesRow
+    class StorytellerStoriesRowViewController: UIViewController {
+        let config: StorytellerStoriesListConfiguration
+        init(config: StorytellerStoriesListConfiguration) {
+            self.config = config
+            super.init(nibName: nil, bundle: nil)
+        }
+        required init?(coder: NSCoder) {
+            fatalError("init(coder:) has not been implemented")
+        }
+        override func viewDidLoad() {
+            super.viewDidLoad()
+            view.backgroundColor = .systemBackground
+            let storiesRow = StorytellerStoriesRow()
+            storiesRow.configure(with: config)
+            storiesRow.translatesAutoresizingMaskIntoConstraints = false
+            view.addSubview(storiesRow)
+            NSLayoutConstraint.activate([
+                storiesRow.leadingAnchor.constraint(equalTo: view.leadingAnchor),
+                storiesRow.trailingAnchor.constraint(equalTo: view.trailingAnchor),
+                storiesRow.topAnchor.constraint(equalTo: view.safeAreaLayoutGuide.topAnchor),
+                storiesRow.heightAnchor.constraint(equalToConstant: 240)
+            ])
         }
     }
 }
