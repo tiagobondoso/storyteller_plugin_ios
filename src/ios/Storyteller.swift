@@ -262,7 +262,7 @@ class CDVStoryteller: CDVPlugin {
     // Private UIViewController to host StorytellerStoriesRowView
     private class StoriesRowViewController: UIViewController {
 
-         let categories: [String]
+        let categories: [String]
 
         init(categories: [String]) {
             self.categories = categories
@@ -278,11 +278,7 @@ class CDVStoryteller: CDVPlugin {
             view.backgroundColor = .systemBackground
 
             let config = StorytellerStoriesListConfiguration(
-                categories: categories, 
-                cellType: .round,
-                theme: .light,
-                uiStyle: .auto,
-                displayLimit: 20
+                categories: categories
             )
 
             storiesRow.configure(with: config)
