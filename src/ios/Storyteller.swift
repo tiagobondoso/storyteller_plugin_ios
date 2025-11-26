@@ -245,10 +245,14 @@ class CDVStoryteller: CDVPlugin {
     // JS usage: showStoriesRowView()
     @objc(showStoriesRowView:)
     func showStoriesRowView(_ command: CDVInvokedUrlCommand) {
+
+        let options = command.argument(at: 0) as? [String: Any] ?? [:]
+        let categories = options["categories"] as? [String] ?? []
+
         DispatchQueue.main.async {
-            let vc = StoriesRowViewController()
+            let vc = StoriesRowViewController(categroies: categories)
             vc.modalPresentationStyle = .fullScreen
-            self.viewController.present(vc, animated: true, completion: nil)
+            self.viewController.present(vc, animated: true)
 
             let pluginResult = CDVPluginResult(status: .ok, messageAs: "Stories row view presented.")
             self.commandDelegate.send(pluginResult, callbackId: command.callbackId)
@@ -257,10 +261,32 @@ class CDVStoryteller: CDVPlugin {
 
     // Private UIViewController to host StorytellerStoriesRowView
     private class StoriesRowViewController: UIViewController {
+
+         let categories: [String]
+
+        init(categories: [String]) {
+            self.categories = categories
+            super.init(nibName: nil, bundle: nil)
+        }
+
+        required init?(coder: NSCoder) {
+            fatalError("init(coder:) has not been implemented")
+        }
+
         override func viewDidLoad() {
             super.viewDidLoad()
             view.backgroundColor = .systemBackground
-            let storiesRow = StorytellerStoriesRowView()
+
+            let config = StorytellerStoriesListConfiguration(
+                categories: categories, 
+                cellType: .round,
+                theme: .light,
+                uiStyle: .auto,
+                displayLimit: 20
+            )
+
+            storiesRow.configure(with: config)
+            storiesRow.reloadData()
             storiesRow.translatesAutoresizingMaskIntoConstraints = false
             view.addSubview(storiesRow)
             NSLayoutConstraint.activate([
