@@ -110,8 +110,9 @@ Storyteller.removeFollowedCategories = function(categories, successCallback, err
 };
 
 Storyteller.showStoriesRowView = function(successCallback, errorCallback) {
-    return execPromise('showStoriesRowView', successCallback, errorCallback);
+    return execPromise('showStoriesRowView', [], successCallback, errorCallback);
 };
+
 
 // COM ESTE CÓDIGO DÁ ERROS A GERAR A BUILD
 /*
