@@ -109,14 +109,6 @@ Storyteller.removeFollowedCategories = function(categories, successCallback, err
     return execPromise('removeFollowedCategories', [categories], successCallback, errorCallback);
 };
 
-Storyteller.showStoriesRowView = function(options, successCallback, errorCallback) {
-    if (typeof options !== 'object' || options === null) {
-        const err = 'Options object is required';
-        if (typeof errorCallback === 'function') errorCallback(err);
-        return Promise.reject(err);
-    }
-    return execPromise('showStoriesRowView', [options], successCallback, errorCallback);
-};
 
 // COM ESTE CÓDIGO DÁ ERROS A GERAR A BUILD
 /*

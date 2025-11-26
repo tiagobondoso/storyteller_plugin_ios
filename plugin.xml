@@ -26,15 +26,9 @@
         <source-file src="src/ios/StorytellerHandler.swift" />
         <source-file src="src/ios/StorytellerViewController.swift" />
         
-        <framework src="AVFoundation.framework" />
-        <framework src="UIKit.framework" />
-        <framework src="Foundation.framework" />
-        <framework src="CoreMedia.framework" />
-        <framework src="CoreAnimation.framework" />
+        <framework src="UIKit.framework" weak="true"/>
+        <framework src="Foundation.framework" weak="true"/>
         <framework src="src/ios/StorytellerSDK.xcframework" custom="true" embed="true" link="true" />
-
-        <header-file src="src/ios/StorytellerSDK.xcframework/ios-arm64/StorytellerSDK.framework/Headers/StorytellerSDK-Swift.h" />
-
 
     </platform>
     
