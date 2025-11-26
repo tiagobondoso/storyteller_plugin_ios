@@ -1,3 +1,4 @@
+
 // StorytellerPlugin.swift
 import Foundation
 import StorytellerSDK
@@ -240,5 +241,35 @@ class CDVStoryteller: CDVPlugin {
             }
     }*/
 
-    
+    // MARK: - Show Stories Row View
+    // JS usage: showStoriesRowView()
+    @objc(showStoriesRowView:)
+    func showStoriesRowView(_ command: CDVInvokedUrlCommand) {
+        DispatchQueue.main.async {
+            let vc = StoriesRowViewController()
+            vc.modalPresentationStyle = .fullScreen
+            self.viewController.present(vc, animated: true, completion: nil)
+
+            let pluginResult = CDVPluginResult(status: .ok, messageAs: "Stories row view presented.")
+            self.commandDelegate.send(pluginResult, callbackId: command.callbackId)
+        }
+    }
+
+    // Private UIViewController to host StorytellerStoriesRowView
+    private class StoriesRowViewController: UIViewController {
+        override func viewDidLoad() {
+            super.viewDidLoad()
+            view.backgroundColor = .systemBackground
+            let storiesRow = StorytellerStoriesRowView()
+            storiesRow.translatesAutoresizingMaskIntoConstraints = false
+            view.addSubview(storiesRow)
+            NSLayoutConstraint.activate([
+                storiesRow.leadingAnchor.constraint(equalTo: view.leadingAnchor),
+                storiesRow.trailingAnchor.constraint(equalTo: view.trailingAnchor),
+                storiesRow.topAnchor.constraint(equalTo: view.safeAreaLayoutGuide.topAnchor),
+                storiesRow.heightAnchor.constraint(equalToConstant: 240)
+            ])
+        }
+    }
+
 }
