@@ -15,7 +15,7 @@
     </js-module>
 
     <platform name="ios">
-        <preference name="UseSwiftLanguageVersion" value="5" />
+        <preference name="SwiftVersion" value="5.0" />
         <config-file target="config.xml" parent="/*">
             <feature name="Storyteller">
                 <param name="ios-package" value="CDVStoryteller" />
