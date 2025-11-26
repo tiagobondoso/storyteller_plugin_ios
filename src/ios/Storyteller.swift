@@ -250,9 +250,9 @@ class CDVStoryteller: CDVPlugin {
         let categories = options["categories"] as? [String] ?? []
 
         DispatchQueue.main.async {
-            let vc = StoriesRowViewController(categroies: categories)
+            let vc = StoriesRowViewController(categories: categories)
             vc.modalPresentationStyle = .fullScreen
-            self.viewController.present(vc, animated: true)
+            self.viewController.present(vc, animated: true, completion: nil)
 
             let pluginResult = CDVPluginResult(status: .ok, messageAs: "Stories row view presented.")
             self.commandDelegate.send(pluginResult, callbackId: command.callbackId)
@@ -284,6 +284,17 @@ class CDVStoryteller: CDVPlugin {
                 uiStyle: .auto,
                 displayLimit: 20
             )
+
+        // Stories configuration with context
+storytellerStoriesRow.configure(with: StorytellerStoriesListConfiguration(
+    categories: ["sports", "entertainment"],
+    context: [
+        "source": "home-screen-stories",
+        "campaign": "summer-league"
+    ]
+))
+
+
 
             storiesRow.configure(with: config)
             storiesRow.reloadData()
