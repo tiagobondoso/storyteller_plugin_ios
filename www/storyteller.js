@@ -109,11 +109,11 @@ Storyteller.removeFollowedCategories = function(categories, successCallback, err
     return execPromise('removeFollowedCategories', [categories], successCallback, errorCallback);
 };
 
-Storyteller.showStoriesRowView = function(options, successCallback, errorCallback) {
+Storyteller.showStoriesRowView = function(categories, successCallback, errorCallback) {
     if (!options || typeof options !== "object") {
         options = {};
     }
-    return execPromise('showStoriesRowView', [options], successCallback, errorCallback);
+    return execPromise('showStoriesRowView', categories, successCallback, errorCallback);
 };
 
 

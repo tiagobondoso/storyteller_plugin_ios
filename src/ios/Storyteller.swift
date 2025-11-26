@@ -246,8 +246,7 @@ class CDVStoryteller: CDVPlugin {
     @objc(showStoriesRowView:)
     func showStoriesRowView(_ command: CDVInvokedUrlCommand) {
 
-        let options = command.argument(at: 0) as? [String: Any] ?? [:]
-        let categories = options["categories"] as? [String] ?? []
+        guard let categories = command.argument(at: 0) as? [String]
 
         DispatchQueue.main.async {
             let vc = StoriesRowViewController(categories: categories)
@@ -278,7 +277,11 @@ class CDVStoryteller: CDVPlugin {
             view.backgroundColor = .systemBackground
 
             let config = StorytellerStoriesListConfiguration(
-                categories: categories
+                categories: categories, 
+                cellType: .round,
+                theme: .light,
+                uiStyle: .auto,
+                displayLimit: 20
             )
 
             storiesRow.configure(with: config)
