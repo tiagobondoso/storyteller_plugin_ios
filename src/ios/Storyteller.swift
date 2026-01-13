@@ -245,30 +245,185 @@ class CDVStoryteller: CDVPlugin {
     // JS usage: showStoriesRowView()
     @objc(showStoriesRowView:)
     func showStoriesRowView(_ command: CDVInvokedUrlCommand) {
-        DispatchQueue.main.async {
-            let vc = StoriesRowViewController()
-            vc.modalPresentationStyle = .fullScreen
-            self.viewController.present(vc, animated: true, completion: nil)
+        do {
+            let options = command.argument(at: 0) as? [String: Any]
+            let configuration = try StoriesRowConfigurationBuilder.makeConfiguration(from: options)
 
-            let pluginResult = CDVPluginResult(status: .ok, messageAs: "Stories row view presented.")
+            DispatchQueue.main.async {
+                let vc = StoriesRowViewController(configuration: configuration)
+                vc.modalPresentationStyle = .fullScreen
+                self.viewController.present(vc, animated: true, completion: nil)
+
+                let pluginResult = CDVPluginResult(status: .ok, messageAs: "Stories row view presented.")
+                self.commandDelegate.send(pluginResult, callbackId: command.callbackId)
+            }
+        } catch {
+            let pluginResult = CDVPluginResult(status: .error, messageAs: error.localizedDescription)
             self.commandDelegate.send(pluginResult, callbackId: command.callbackId)
         }
     }
 
     // Private UIViewController to host StorytellerStoriesRowView
     private class StoriesRowViewController: UIViewController {
+        private let configuration: StorytellerStoriesListConfiguration?
+        private let storiesRowView = StorytellerStoriesRowView()
+        private let storytellerDelegate = StorytellerHandler()
+
+        init(configuration: StorytellerStoriesListConfiguration?) {
+            self.configuration = configuration
+            super.init(nibName: nil, bundle: nil)
+        }
+
+        required init?(coder: NSCoder) {
+            fatalError("init(coder:) has not been implemented")
+        }
+
         override func viewDidLoad() {
             super.viewDidLoad()
             view.backgroundColor = .systemBackground
-            let storiesRow = StorytellerStoriesRowView()
-            storiesRow.translatesAutoresizingMaskIntoConstraints = false
-            view.addSubview(storiesRow)
+            storiesRowView.translatesAutoresizingMaskIntoConstraints = false
+            storiesRowView.delegate = storytellerDelegate
+            view.addSubview(storiesRowView)
             NSLayoutConstraint.activate([
-                storiesRow.leadingAnchor.constraint(equalTo: view.leadingAnchor),
-                storiesRow.trailingAnchor.constraint(equalTo: view.trailingAnchor),
-                storiesRow.topAnchor.constraint(equalTo: view.safeAreaLayoutGuide.topAnchor),
-                storiesRow.heightAnchor.constraint(equalToConstant: 240)
+                storiesRowView.leadingAnchor.constraint(equalTo: view.leadingAnchor),
+                storiesRowView.trailingAnchor.constraint(equalTo: view.trailingAnchor),
+                storiesRowView.topAnchor.constraint(equalTo: view.safeAreaLayoutGuide.topAnchor),
+                storiesRowView.heightAnchor.constraint(equalToConstant: 240)
             ])
+
+            if let configuration = configuration {
+                storiesRowView.configure(with: configuration)
+            }
+
+            storiesRowView.reloadData()
+        }
+    }
+
+    private enum StoriesRowConfigurationError: LocalizedError {
+        case missingCategories
+
+        var errorDescription: String? {
+            switch self {
+            case .missingCategories:
+                return "At least one category or attribute identifier is required to filter the Stories Row."
+            }
+        }
+    }
+
+    private enum StoriesRowConfigurationBuilder {
+        static func makeConfiguration(from options: [String: Any]?) throws -> StorytellerStoriesListConfiguration? {
+            guard let options = sanitize(dictionary: options), !options.isEmpty else {
+                return nil
+            }
+
+            let categories = extractCategories(from: options)
+            guard !categories.isEmpty else {
+                throw StoriesRowConfigurationError.missingCategories
+            }
+
+            let cellType = cellType(from: options["cellType"] ?? options["cell_type"])
+            let displayLimit = intValue(from: options["displayLimit"] ?? options["display_limit"])
+            let visibleTiles = doubleValue(from: options["visibleTiles"] ?? options["visible_tiles"])
+
+            return StorytellerStoriesListConfiguration(
+                categories: categories,
+                cellType: cellType,
+                theme: nil,
+                uiStyle: nil,
+                displayLimit: displayLimit,
+                visibleTiles: visibleTiles
+            )
+        }
+
+        private static func sanitize(dictionary: [String: Any]?) -> [String: Any]? {
+            guard let dictionary = dictionary else { return nil }
+            var sanitized: [String: Any] = [:]
+            dictionary.forEach { key, value in
+                if !(value is NSNull) {
+                    sanitized[key] = value
+                }
+            }
+            return sanitized
+        }
+
+        private static func extractCategories(from options: [String: Any]) -> [String] {
+            let candidates: [Any?] = [
+                options["categories"],
+                options["categoryIds"],
+                options["categoryId"],
+                options["category"],
+                options["attribute"],
+                options["attributes"],
+                options["attributeId"],
+                options["attributeIds"],
+                options["filter"],
+                options["filters"],
+                options["tag"],
+                options["tags"]
+            ]
+
+            for candidate in candidates {
+                let values = normalizeStrings(from: candidate)
+                if !values.isEmpty {
+                    return values
+                }
+            }
+
+            return []
+        }
+
+        private static func cellType(from value: Any?) -> StorytellerListViewCellType? {
+            guard let raw = (value as? String)?.trimmingCharacters(in: .whitespacesAndNewlines).lowercased(), !raw.isEmpty else {
+                return nil
+            }
+            return StorytellerListViewCellType(rawValue: raw)
+        }
+
+        private static func intValue(from value: Any?) -> Int? {
+            switch value {
+            case let number as NSNumber:
+                return number.intValue
+            case let string as String:
+                return Int(string.trimmingCharacters(in: .whitespacesAndNewlines))
+            default:
+                return nil
+            }
+        }
+
+        private static func doubleValue(from value: Any?) -> Double? {
+            switch value {
+            case let number as NSNumber:
+                return number.doubleValue
+            case let string as String:
+                return Double(string.replacingOccurrences(of: ",", with: ".").trimmingCharacters(in: .whitespacesAndNewlines))
+            default:
+                return nil
+            }
+        }
+
+        private static func normalizeStrings(from value: Any?) -> [String] {
+            if let strings = value as? [String] {
+                return strings.compactMap { trimmed($0) }
+            }
+
+            if let array = value as? [Any] {
+                return array.compactMap { ($0 as? String).flatMap(trimmed) }
+            }
+
+            if let nsArray = value as? NSArray {
+                return nsArray.compactMap { ($0 as? String).flatMap(trimmed) }
+            }
+
+            if let single = value as? String, let trimmedValue = trimmed(single) {
+                return [trimmedValue]
+            }
+
+            return []
+        }
+
+        private static func trimmed(_ string: String) -> String? {
+            let trimmedString = string.trimmingCharacters(in: .whitespacesAndNewlines)
+            return trimmedString.isEmpty ? nil : trimmedString
         }
     }
 

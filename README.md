@@ -37,6 +37,37 @@ Present the full native storyteller view.
 cordova.plugins.storyteller.showStorytellerView();
 ```
 
+### showStoriesRowView(options)
+Presents a native Stories Row filtered by the content attributes/categories you pass in `options`.
+
+`options` is optional (defaults to the SDK's standard feed), but you can provide:
+
+- `categories` / `categoryIds` / `attributeIds`: array of category or attribute identifiers used by your Storyteller CMS filters.
+- `category` / `attribute`: single identifier (string) – shorthand if you only need one filter.
+- `cellType`: `'round'` or `'square'` to control the tile shape.
+- `displayLimit`: maximum number of tiles to request.
+- `visibleTiles`: fractional number of tiles that should stay visible (e.g., `2.5`).
+
+Example:
+
+```javascript
+await cordova.plugins.storyteller.showStoriesRowView({
+  categories: ['benfica-top-row'],
+  cellType: 'round',
+  displayLimit: 10
+});
+```
+
+The method still accepts callbacks if you prefer:
+
+```javascript
+cordova.plugins.storyteller.showStoriesRowView(
+  { attribute: 'sponsored' },
+  () => console.log('row shown'),
+  err => console.error(err)
+);
+```
+
 ### openStoryById(id)
 Open a specific story by internal id or externalId.
 

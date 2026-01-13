@@ -109,8 +109,21 @@ Storyteller.removeFollowedCategories = function(categories, successCallback, err
     return execPromise('removeFollowedCategories', [categories], successCallback, errorCallback);
 };
 
-Storyteller.showStoriesRowView = function(successCallback, errorCallback) {
-    return execPromise('showStoriesRowView', [], successCallback, errorCallback);
+Storyteller.showStoriesRowView = function(options, successCallback, errorCallback) {
+    if (typeof options === 'function') {
+        errorCallback = successCallback;
+        successCallback = options;
+        options = null;
+    }
+
+    if (options && typeof options !== 'object') {
+        const err = 'Options must be an object when provided.';
+        if (typeof errorCallback === 'function') errorCallback(err);
+        return Promise.reject(err);
+    }
+
+    const args = options ? [options] : [];
+    return execPromise('showStoriesRowView', args, successCallback, errorCallback);
 };
 
 
