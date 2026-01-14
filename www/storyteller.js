@@ -173,139 +173,6 @@ function prepareInlineOptions(options) {
     return normalized;
 }
 
-function normalizeStringArray(value) {
-    if (Array.isArray(value)) {
-        return value
-            .map(function(entry) {
-                return typeof entry === 'string' ? entry.trim() : '';
-            })
-            .filter(Boolean);
-    }
-
-    if (typeof value === 'string') {
-        return value
-            .split(',')
-            .map(function(entry) { return entry.trim(); })
-            .filter(Boolean);
-    }
-
-    return [];
-}
-
-function firstDefined(keys, sources) {
-    for (var i = 0; i < keys.length; i += 1) {
-        var key = keys[i];
-        for (var j = 0; j < sources.length; j += 1) {
-            var source = sources[j];
-            if (source && source[key] !== undefined && source[key] !== null) {
-                return source[key];
-            }
-        }
-    }
-    return undefined;
-}
-
-function parseBoolean(value) {
-    if (typeof value === 'boolean') {
-        return value;
-    }
-
-    if (typeof value === 'number') {
-        return value !== 0;
-    }
-
-    if (typeof value === 'string') {
-        var normalized = value.trim().toLowerCase();
-        if (['true', '1', 'yes', 'y', 'sim'].indexOf(normalized) >= 0) return true;
-        if (['false', '0', 'no', 'n', 'nao', 'não'].indexOf(normalized) >= 0) return false;
-    }
-
-    return undefined;
-}
-
-function prepareListViewOptions(options) {
-    if (!options || typeof options !== 'object') {
-        throw new Error('Options object is required to show a Storyteller list view.');
-    }
-
-    var configuration = (options.configuration && typeof options.configuration === 'object') ? options.configuration : null;
-    var sources = [options];
-    if (configuration) {
-        sources.push(configuration);
-    }
-
-    var contentType = firstDefined(['contentType', 'type', 'content'], sources);
-    if (typeof contentType !== 'string' || !contentType.trim()) {
-        contentType = 'stories';
-    }
-    contentType = contentType.trim().toLowerCase() === 'clips' ? 'clips' : 'stories';
-
-    var layout = firstDefined(['layout', 'listLayout', 'view'], sources);
-    if (typeof layout !== 'string' || !layout.trim()) {
-        layout = 'row';
-    }
-    layout = layout.trim().toLowerCase() === 'grid' ? 'grid' : 'row';
-
-    var normalized = {
-        contentType: contentType,
-        layout: layout
-    };
-
-    if (layout === 'grid') {
-        var scrollableValue = firstDefined(['scrollable', 'isScrollable', 'gridScrollable'], sources);
-        var boolValue = parseBoolean(scrollableValue);
-        if (typeof boolValue === 'boolean') {
-            normalized.scrollable = boolValue;
-        }
-    }
-
-    var cellType = firstDefined(['cellType', 'cell_type'], sources);
-    if (typeof cellType === 'string' && cellType.trim()) {
-        normalized.cellType = cellType.trim().toLowerCase();
-    }
-
-    var displayLimit = Number(firstDefined(['displayLimit', 'display_limit'], sources));
-    if (Number.isFinite(displayLimit)) {
-        normalized.displayLimit = displayLimit;
-    }
-
-    var visibleTiles = Number(firstDefined(['visibleTiles', 'visible_tiles'], sources));
-    if (Number.isFinite(visibleTiles)) {
-        normalized.visibleTiles = visibleTiles;
-    }
-
-    if (contentType === 'stories') {
-        var categoriesValue = firstDefined([
-            'categories',
-            'categoryIds',
-            'categoryId',
-            'category',
-            'attribute',
-            'attributes',
-            'attributeId',
-            'attributeIds',
-            'filter',
-            'filters',
-            'tag',
-            'tags'
-        ], sources);
-
-        var categories = normalizeStringArray(categoriesValue);
-        if (!categories.length) {
-            throw new Error('At least one category or attribute is required for a Stories list view.');
-        }
-        normalized.categories = categories;
-    } else {
-        var collectionValue = firstDefined(['collectionId', 'collection', 'collection_id', 'collectionCode', 'collectionIdentifier'], sources);
-        if (typeof collectionValue !== 'string' || !collectionValue.trim()) {
-            throw new Error('collectionId is required for a Clips list view.');
-        }
-        normalized.collectionId = collectionValue.trim();
-    }
-
-    return normalized;
-}
-
 var Storyteller = {};
 
 // Inicializar o SDK
@@ -402,29 +269,21 @@ Storyteller.removeFollowedCategories = function(categories, successCallback, err
     return execPromise('removeFollowedCategories', [categories], successCallback, errorCallback);
 };
 
-Storyteller.showListView = function(options, successCallback, errorCallback) {
+Storyteller.showStoriesRowView = function(options, successCallback, errorCallback) {
     if (typeof options === 'function') {
         errorCallback = successCallback;
         successCallback = options;
         options = null;
     }
 
-    if (!options || typeof options !== 'object') {
-        const err = 'Options object with filters/layout is required to show a list view.';
+    if (options && typeof options !== 'object') {
+        const err = 'Options must be an object when provided.';
         if (typeof errorCallback === 'function') errorCallback(err);
         return Promise.reject(err);
     }
 
-    var payload;
-    try {
-        payload = prepareListViewOptions(options);
-    } catch (parseError) {
-        var reason = parseError && parseError.message ? parseError.message : parseError;
-        if (typeof errorCallback === 'function') errorCallback(reason);
-        return Promise.reject(reason);
-    }
-
-    return execPromise('showListView', [payload], successCallback, errorCallback);
+    const args = options ? [options] : [];
+    return execPromise('showStoriesRowView', args, successCallback, errorCallback);
 };
 
 Storyteller.showStoriesRowInline = function(options, successCallback, errorCallback) {
