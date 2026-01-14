@@ -369,6 +369,7 @@ class CDVStoryteller: CDVPlugin {
     }
 
     // MARK: - Inline Stories Row helpers
+    @MainActor
     private func mountInlineStoriesRow(configuration: StorytellerStoriesListConfiguration, layout: InlineLayoutOptions) throws {
         guard let hostView = self.viewController?.view else {
             throw InlineStoriesRowError.missingHostView
@@ -418,6 +419,7 @@ class CDVStoryteller: CDVPlugin {
         applyInlineLayout(layout)
     }
 
+    @MainActor
     private func applyInlineLayout(_ layout: InlineLayoutOptions) {
         inlineTopConstraint?.constant = layout.top
         inlineLeadingConstraint?.constant = layout.leading
@@ -431,6 +433,7 @@ class CDVStoryteller: CDVPlugin {
         inlineStoriesRowContainer?.layoutIfNeeded()
     }
 
+    @MainActor
     private func teardownInlineStoriesRow() {
         inlineStoriesRowView?.delegate = nil
         inlineStoriesRowView?.removeFromSuperview()
