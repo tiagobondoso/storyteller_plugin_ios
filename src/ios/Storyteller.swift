@@ -7,38 +7,59 @@ import StorytellerSDK
 
 @objc(CDVStoryteller)
 class CDVStoryteller: CDVPlugin {
-
-    private final class StorytellerHostedListViewController: UIViewController {
     private var inlineStoriesRowView: StorytellerStoriesRowView?
+    private var inlineStoriesRowContainer: UIView?
     private var inlineTopConstraint: NSLayoutConstraint?
     private var inlineLeadingConstraint: NSLayoutConstraint?
     private var inlineTrailingConstraint: NSLayoutConstraint?
-        private let listView: StorytellerListView
+    private var inlineHeightConstraint: NSLayoutConstraint?
+    private weak var inlineHostView: UIView?
+    private var inlineAttachmentMode: InlineAttachmentMode?
+    private weak var inlineScrollView: UIScrollView?
+    private var inlineDocumentFrame: CGRect?
+    private var currentInlineLayout: InlineLayoutOptions?
 
-        init(listView: StorytellerListView) {
-            self.listView = listView
-            super.init(nibName: nil, bundle: nil)
+    private var lastInitializedApiKey: String?
+    private var lastInitializedUserId: String?
+
+    // MARK: - SDK bootstrap
+    @objc(initializeSDK:)
+    func initializeSDK(_ command: CDVInvokedUrlCommand) {
+        let apiKey = (command.argument(at: 0) as? String)?.trimmingCharacters(in: .whitespacesAndNewlines) ?? ""
+        guard !apiKey.isEmpty else {
+            let result = CDVPluginResult(status: .error, messageAs: "API key is required.")
+            commandDelegate.send(result, callbackId: command.callbackId)
+            return
         }
 
-        required init?(coder: NSCoder) {
-            fatalError("init(coder:) has not been implemented")
+        let userId = (command.argument(at: 1) as? String)?.trimmingCharacters(in: .whitespacesAndNewlines) ?? ""
+        guard !userId.isEmpty else {
+            let result = CDVPluginResult(status: .error, messageAs: "User ID is required.")
+            commandDelegate.send(result, callbackId: command.callbackId)
+            return
         }
 
-        override func viewDidLoad() {
-            super.viewDidLoad()
-            view.backgroundColor = .systemBackground
-            listView.translatesAutoresizingMaskIntoConstraints = false
-            view.addSubview(listView)
-            NSLayoutConstraint.activate([
-                listView.leadingAnchor.constraint(equalTo: view.leadingAnchor),
-                listView.trailingAnchor.constraint(equalTo: view.trailingAnchor),
-                listView.topAnchor.constraint(equalTo: view.safeAreaLayoutGuide.topAnchor),
-                listView.bottomAnchor.constraint(lessThanOrEqualTo: view.bottomAnchor)
-            ])
-
-            listView.reloadData()
+        if Storyteller.isInitialized,
+           apiKey == lastInitializedApiKey,
+           userId == lastInitializedUserId {
+            let result = CDVPluginResult(status: .ok, messageAs: "Storyteller already initialized.")
+            commandDelegate.send(result, callbackId: command.callbackId)
+            return
         }
-    }
+
+        guard let userInput = StorytellerSDK.UserInput(externalId: userId) else {
+            let result = CDVPluginResult(status: .error, messageAs: "Invalid user identifier.")
+            commandDelegate.send(result, callbackId: command.callbackId)
+            return
+        }
+
+        Task { @MainActor in
+            do {
+                _ = StorytellerHandler.shared
+                try await Storyteller.initialize(apiKey: apiKey, userInput: userInput)
+                self.lastInitializedApiKey = apiKey
+                self.lastInitializedUserId = userId
+                let result = CDVPluginResult(status: .ok, messageAs: "Storyteller initialized.")
                 self.commandDelegate.send(result, callbackId: command.callbackId)
             } catch {
                 print("Storyteller SDK Init Error: \(error)")
