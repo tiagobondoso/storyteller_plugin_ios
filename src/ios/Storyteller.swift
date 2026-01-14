@@ -2,6 +2,7 @@
 // StorytellerPlugin.swift
 import Foundation
 import UIKit
+import WebKit
 import StorytellerSDK
 
 @objc(CDVStoryteller)
@@ -13,6 +14,10 @@ class CDVStoryteller: CDVPlugin {
     private var inlineLeadingConstraint: NSLayoutConstraint?
     private var inlineTrailingConstraint: NSLayoutConstraint?
     private var inlineHeightConstraint: NSLayoutConstraint?
+    private var inlineAttachmentMode: InlineAttachmentMode?
+    private weak var inlineScrollView: UIScrollView?
+    private var inlineDocumentFrame: CGRect?
+    private var currentInlineLayout: InlineLayoutOptions?
 
     // MARK: - Initialize SDK
     @objc(initializeSDK:)
@@ -396,41 +401,41 @@ class CDVStoryteller: CDVPlugin {
             storiesRowView.bottomAnchor.constraint(equalTo: container.bottomAnchor)
         ])
 
-    hostView.addSubview(container)
-    hostView.bringSubviewToFront(container)
-
-        let topAnchorTarget: NSLayoutYAxisAnchor = layout.useSafeArea ? hostView.safeAreaLayoutGuide.topAnchor : hostView.topAnchor
-
-        let topConstraint = container.topAnchor.constraint(equalTo: topAnchorTarget, constant: layout.top)
-        let leadingConstraint = container.leadingAnchor.constraint(equalTo: hostView.leadingAnchor, constant: layout.leading)
-        let trailingConstraint = container.trailingAnchor.constraint(equalTo: hostView.trailingAnchor, constant: -layout.trailing)
-        let heightConstraint = container.heightAnchor.constraint(equalToConstant: layout.height)
-
-        NSLayoutConstraint.activate([topConstraint, leadingConstraint, trailingConstraint, heightConstraint])
-
         inlineStoriesRowContainer = container
         inlineStoriesRowView = storiesRowView
-        inlineTopConstraint = topConstraint
-        inlineLeadingConstraint = leadingConstraint
-        inlineTrailingConstraint = trailingConstraint
-        inlineHeightConstraint = heightConstraint
 
         storiesRowView.reloadData()
+
+        if !attachInlineContainerToScrollView(container: container, layout: layout) {
+            attachInlineContainerAsOverlay(container: container, hostView: hostView, layout: layout)
+        }
+
         applyInlineLayout(layout)
     }
 
     @MainActor
     private func applyInlineLayout(_ layout: InlineLayoutOptions) {
-        inlineTopConstraint?.constant = layout.top
-        inlineLeadingConstraint?.constant = layout.leading
-        inlineTrailingConstraint?.constant = -layout.trailing
-        inlineHeightConstraint?.constant = layout.height
+        currentInlineLayout = layout
+
         inlineStoriesRowContainer?.backgroundColor = layout.backgroundColor ?? .clear
         inlineStoriesRowContainer?.layer.cornerRadius = layout.cornerRadius
         inlineStoriesRowContainer?.clipsToBounds = layout.cornerRadius > 0
         inlineStoriesRowContainer?.isHidden = layout.isHidden
-        inlineStoriesRowContainer?.setNeedsLayout()
-        inlineStoriesRowContainer?.layoutIfNeeded()
+
+        switch inlineAttachmentMode {
+        case .overlay:
+            inlineTopConstraint?.constant = layout.top
+            inlineLeadingConstraint?.constant = layout.leading
+            inlineTrailingConstraint?.constant = -layout.trailing
+            inlineHeightConstraint?.constant = layout.height
+            inlineStoriesRowContainer?.setNeedsLayout()
+            inlineStoriesRowContainer?.layoutIfNeeded()
+        case .scrollContent:
+            inlineDocumentFrame = layout.documentFrame ?? inlineDocumentFrame
+            updateInlineScrollAttachmentFrame()
+        case .none:
+            break
+        }
     }
 
     @MainActor
@@ -444,6 +449,119 @@ class CDVStoryteller: CDVPlugin {
         inlineLeadingConstraint = nil
         inlineTrailingConstraint = nil
         inlineHeightConstraint = nil
+        inlineAttachmentMode = nil
+        inlineScrollView = nil
+        inlineDocumentFrame = nil
+        currentInlineLayout = nil
+    }
+
+    @MainActor
+    private func attachInlineContainerAsOverlay(container: UIView, hostView: UIView, layout: InlineLayoutOptions) {
+        inlineAttachmentMode = .overlay
+        inlineScrollView = nil
+        inlineDocumentFrame = nil
+
+        container.translatesAutoresizingMaskIntoConstraints = false
+        hostView.addSubview(container)
+        hostView.bringSubviewToFront(container)
+
+        let topAnchorTarget: NSLayoutYAxisAnchor = layout.useSafeArea ? hostView.safeAreaLayoutGuide.topAnchor : hostView.topAnchor
+
+        let topConstraint = container.topAnchor.constraint(equalTo: topAnchorTarget, constant: layout.top)
+        let leadingConstraint = container.leadingAnchor.constraint(equalTo: hostView.leadingAnchor, constant: layout.leading)
+        let trailingConstraint = container.trailingAnchor.constraint(equalTo: hostView.trailingAnchor, constant: -layout.trailing)
+        let heightConstraint = container.heightAnchor.constraint(equalToConstant: layout.height)
+
+        NSLayoutConstraint.activate([topConstraint, leadingConstraint, trailingConstraint, heightConstraint])
+
+        inlineTopConstraint = topConstraint
+        inlineLeadingConstraint = leadingConstraint
+        inlineTrailingConstraint = trailingConstraint
+        inlineHeightConstraint = heightConstraint
+    }
+
+    @MainActor
+    @discardableResult
+    private func attachInlineContainerToScrollView(container: UIView, layout: InlineLayoutOptions) -> Bool {
+        guard layout.prefersScrollAttachment,
+              let documentFrame = layout.documentFrame,
+              let scrollView = resolveScrollView() else {
+            return false
+        }
+
+        inlineAttachmentMode = .scrollContent
+        inlineScrollView = scrollView
+        inlineDocumentFrame = documentFrame
+
+        container.translatesAutoresizingMaskIntoConstraints = true
+        container.autoresizingMask = []
+        if container.superview !== scrollView {
+            scrollView.addSubview(container)
+        }
+        scrollView.bringSubviewToFront(container)
+
+        inlineTopConstraint = nil
+        inlineLeadingConstraint = nil
+        inlineTrailingConstraint = nil
+        inlineHeightConstraint = nil
+
+        updateInlineScrollAttachmentFrame(using: layout)
+        return true
+    }
+
+    @MainActor
+    private func updateInlineScrollAttachmentFrame(using layoutOverride: InlineLayoutOptions? = nil) {
+        guard inlineAttachmentMode == .scrollContent,
+              let container = inlineStoriesRowContainer,
+              let layout = layoutOverride ?? currentInlineLayout,
+              let scrollView = inlineScrollView else {
+            return
+        }
+
+        guard let baseFrame = layout.documentFrame ?? inlineDocumentFrame else { return }
+        let resolvedFrame = normalizedScrollAttachmentFrame(baseFrame: baseFrame, layout: layout, in: scrollView)
+
+        if container.frame.integral != resolvedFrame.integral {
+            container.frame = resolvedFrame
+            container.setNeedsLayout()
+            container.layoutIfNeeded()
+        }
+    }
+
+    @MainActor
+    private func updateInlineScrollAttachmentFrame() {
+        updateInlineScrollAttachmentFrame(using: nil)
+    }
+
+    private func normalizedScrollAttachmentFrame(baseFrame: CGRect, layout: InlineLayoutOptions, in scrollView: UIScrollView) -> CGRect {
+        var frame = baseFrame
+
+        if frame.width <= 0 {
+            let viewportWidth = scrollView.bounds.width
+            frame.size.width = max(0, viewportWidth - layout.leading - layout.trailing)
+        }
+
+        if frame.height <= 0 {
+            frame.size.height = layout.height
+        }
+
+        return frame
+    }
+
+    private func resolveScrollView() -> UIScrollView? {
+        if let wkWebView = self.webView as? WKWebView {
+            return wkWebView.scrollView
+        }
+
+        if let uiWebView = self.webView as? UIWebView {
+            return uiWebView.scrollView
+        }
+
+        if let scroll = self.webView as? UIScrollView {
+            return scroll
+        }
+
+        return self.webView?.subviews.compactMap { $0 as? UIScrollView }.first
     }
 
     private enum StoriesRowConfigurationError: LocalizedError {
@@ -468,6 +586,11 @@ class CDVStoryteller: CDVPlugin {
         }
     }
 
+    private enum InlineAttachmentMode {
+        case overlay
+        case scrollContent
+    }
+
     private struct InlineLayoutOptions {
         let top: CGFloat
         let leading: CGFloat
@@ -477,6 +600,19 @@ class CDVStoryteller: CDVPlugin {
         let backgroundColor: UIColor?
         let cornerRadius: CGFloat
         let isHidden: Bool
+        let prefersScrollAttachment: Bool
+        let documentLeft: CGFloat?
+        let documentTop: CGFloat?
+        let documentWidth: CGFloat?
+        let documentHeight: CGFloat?
+
+        var documentFrame: CGRect? {
+            guard let left = documentLeft, let top = documentTop else { return nil }
+            let width = documentWidth ?? 0
+            let resolvedHeight = documentHeight ?? height
+            guard width > 0, resolvedHeight > 0 else { return nil }
+            return CGRect(x: left, y: top, width: width, height: resolvedHeight)
+        }
     }
 
     private enum InlineLayoutBuilder {
@@ -491,6 +627,12 @@ class CDVStoryteller: CDVPlugin {
             let useSafeArea = PluginValueParser.bool(from: sanitized["useSafeArea"]) ?? true
             let cornerRadius = CGFloat(PluginValueParser.double(from: sanitized["cornerRadius"]) ?? 0)
             let isHidden = PluginValueParser.bool(from: sanitized["hidden"] ?? sanitized["isHidden"]) ?? false
+            let prefersScrollAttachment = PluginValueParser.bool(from: sanitized["attachToScrollView"] ?? sanitized["attach_to_scroll_view"] ?? sanitized["scrollAttachment"]) ?? false
+
+            let documentLeft = PluginValueParser.double(from: sanitized["documentLeft"] ?? sanitized["docLeft"] ?? sanitized["contentLeft"])
+            let documentTop = PluginValueParser.double(from: sanitized["documentTop"] ?? sanitized["docTop"] ?? sanitized["contentTop"])
+            let documentWidth = PluginValueParser.double(from: sanitized["documentWidth"] ?? sanitized["docWidth"] ?? sanitized["width"])
+            let documentHeight = PluginValueParser.double(from: sanitized["documentHeight"] ?? sanitized["docHeight"])
 
             let backgroundColorHex = (sanitized["backgroundColor"] as? String)?.trimmingCharacters(in: .whitespacesAndNewlines)
             let backgroundColor: UIColor?
@@ -508,7 +650,12 @@ class CDVStoryteller: CDVPlugin {
                 useSafeArea: useSafeArea,
                 backgroundColor: backgroundColor,
                 cornerRadius: cornerRadius,
-                isHidden: isHidden
+                isHidden: isHidden,
+                prefersScrollAttachment: prefersScrollAttachment,
+                documentLeft: documentLeft.map { CGFloat($0) },
+                documentTop: documentTop.map { CGFloat($0) },
+                documentWidth: documentWidth.map { CGFloat($0) },
+                documentHeight: documentHeight.map { CGFloat($0) }
             )
         }
     }
