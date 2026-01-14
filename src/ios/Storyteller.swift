@@ -14,6 +14,7 @@ class CDVStoryteller: CDVPlugin {
     private var inlineLeadingConstraint: NSLayoutConstraint?
     private var inlineTrailingConstraint: NSLayoutConstraint?
     private var inlineHeightConstraint: NSLayoutConstraint?
+    private weak var inlineHostView: UIView?
     private var inlineAttachmentMode: InlineAttachmentMode?
     private weak var inlineScrollView: UIScrollView?
     private var inlineDocumentFrame: CGRect?
@@ -382,6 +383,7 @@ class CDVStoryteller: CDVPlugin {
 
         teardownInlineStoriesRow()
 
+        inlineHostView = hostView
         let container = UIView()
         container.translatesAutoresizingMaskIntoConstraints = false
         container.backgroundColor = layout.backgroundColor ?? .clear
@@ -422,6 +424,16 @@ class CDVStoryteller: CDVPlugin {
         inlineStoriesRowContainer?.clipsToBounds = layout.cornerRadius > 0
         inlineStoriesRowContainer?.isHidden = layout.isHidden
 
+        if layout.prefersScrollAttachment, inlineAttachmentMode != .scrollContent {
+            if attachInlineContainerToScrollView(container: inlineStoriesRowContainer, layout: layout) {
+                inlineAttachmentMode = .scrollContent
+            }
+        } else if !layout.prefersScrollAttachment, inlineAttachmentMode == .scrollContent,
+                  let hostView = inlineHostView,
+                  let container = inlineStoriesRowContainer {
+            attachInlineContainerAsOverlay(container: container, hostView: hostView, layout: layout)
+        }
+
         switch inlineAttachmentMode {
         case .overlay:
             inlineTopConstraint?.constant = layout.top
@@ -449,6 +461,7 @@ class CDVStoryteller: CDVPlugin {
         inlineLeadingConstraint = nil
         inlineTrailingConstraint = nil
         inlineHeightConstraint = nil
+        inlineHostView = nil
         inlineAttachmentMode = nil
         inlineScrollView = nil
         inlineDocumentFrame = nil
@@ -457,12 +470,17 @@ class CDVStoryteller: CDVPlugin {
 
     @MainActor
     private func attachInlineContainerAsOverlay(container: UIView, hostView: UIView, layout: InlineLayoutOptions) {
+        detachScrollAttachmentIfNeeded()
+        if container.superview !== hostView {
+            container.removeFromSuperview()
+            container.translatesAutoresizingMaskIntoConstraints = false
+            hostView.addSubview(container)
+        }
+
         inlineAttachmentMode = .overlay
         inlineScrollView = nil
         inlineDocumentFrame = nil
 
-        container.translatesAutoresizingMaskIntoConstraints = false
-        hostView.addSubview(container)
         hostView.bringSubviewToFront(container)
 
         let topAnchorTarget: NSLayoutYAxisAnchor = layout.useSafeArea ? hostView.safeAreaLayoutGuide.topAnchor : hostView.topAnchor
@@ -482,22 +500,26 @@ class CDVStoryteller: CDVPlugin {
 
     @MainActor
     @discardableResult
-    private func attachInlineContainerToScrollView(container: UIView, layout: InlineLayoutOptions) -> Bool {
-        guard layout.prefersScrollAttachment,
+    private func attachInlineContainerToScrollView(container: UIView?, layout: InlineLayoutOptions) -> Bool {
+        guard let container = container,
+              layout.prefersScrollAttachment,
               let documentFrame = layout.documentFrame,
               let scrollView = resolveScrollView() else {
             return false
+        }
+
+        detachOverlayConstraintsIfNeeded()
+        if container.superview !== scrollView {
+            container.removeFromSuperview()
+            container.translatesAutoresizingMaskIntoConstraints = true
+            container.autoresizingMask = []
+            scrollView.addSubview(container)
         }
 
         inlineAttachmentMode = .scrollContent
         inlineScrollView = scrollView
         inlineDocumentFrame = documentFrame
 
-        container.translatesAutoresizingMaskIntoConstraints = true
-        container.autoresizingMask = []
-        if container.superview !== scrollView {
-            scrollView.addSubview(container)
-        }
         scrollView.bringSubviewToFront(container)
 
         inlineTopConstraint = nil
@@ -507,6 +529,24 @@ class CDVStoryteller: CDVPlugin {
 
         updateInlineScrollAttachmentFrame(using: layout)
         return true
+    }
+
+    private func detachOverlayConstraintsIfNeeded() {
+        inlineTopConstraint?.isActive = false
+        inlineLeadingConstraint?.isActive = false
+        inlineTrailingConstraint?.isActive = false
+        inlineHeightConstraint?.isActive = false
+
+        inlineTopConstraint = nil
+        inlineLeadingConstraint = nil
+        inlineTrailingConstraint = nil
+        inlineHeightConstraint = nil
+    }
+
+    private func detachScrollAttachmentIfNeeded() {
+        guard inlineAttachmentMode == .scrollContent else { return }
+        inlineScrollView = nil
+        inlineDocumentFrame = nil
     }
 
     @MainActor
