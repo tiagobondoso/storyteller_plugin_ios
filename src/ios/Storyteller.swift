@@ -549,19 +549,49 @@ class CDVStoryteller: CDVPlugin {
     }
 
     private func resolveScrollView() -> UIScrollView? {
-        if let wkWebView = self.webView as? WKWebView {
+        if let direct = extractScrollView(from: self.webView) {
+            return direct
+        }
+
+        if let engineView = self.webViewEngine?.engineWebView, let engineScroll = extractScrollView(from: engineView) {
+            return engineScroll
+        }
+
+        if let host = self.viewController?.view, let nested = findNestedScrollView(in: host) {
+            return nested
+        }
+
+        return nil
+    }
+
+    private func extractScrollView(from candidate: UIView?) -> UIScrollView? {
+        if let wkWebView = candidate as? WKWebView {
             return wkWebView.scrollView
         }
 
-        if let uiWebView = self.webView as? UIWebView {
+        if let uiWebView = candidate as? UIWebView {
             return uiWebView.scrollView
         }
 
-        if let scroll = self.webView as? UIScrollView {
+        if let scroll = candidate as? UIScrollView {
             return scroll
         }
 
-        return self.webView?.subviews.compactMap { $0 as? UIScrollView }.first
+        return nil
+    }
+
+    private func findNestedScrollView(in view: UIView) -> UIScrollView? {
+        if let scroll = extractScrollView(from: view) {
+            return scroll
+        }
+
+        for subview in view.subviews {
+            if let found = findNestedScrollView(in: subview) {
+                return found
+            }
+        }
+
+        return nil
     }
 
     private enum StoriesRowConfigurationError: LocalizedError {
