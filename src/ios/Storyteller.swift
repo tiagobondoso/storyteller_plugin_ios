@@ -8,40 +8,37 @@ import StorytellerSDK
 @objc(CDVStoryteller)
 class CDVStoryteller: CDVPlugin {
 
-    private var inlineStoriesRowContainer: UIView?
+    private final class StorytellerHostedListViewController: UIViewController {
     private var inlineStoriesRowView: StorytellerStoriesRowView?
     private var inlineTopConstraint: NSLayoutConstraint?
     private var inlineLeadingConstraint: NSLayoutConstraint?
     private var inlineTrailingConstraint: NSLayoutConstraint?
-    private var inlineHeightConstraint: NSLayoutConstraint?
-    private weak var inlineHostView: UIView?
-    private var inlineAttachmentMode: InlineAttachmentMode?
-    private weak var inlineScrollView: UIScrollView?
-    private var inlineDocumentFrame: CGRect?
-    private var currentInlineLayout: InlineLayoutOptions?
+        private let listView: StorytellerListView
 
-    // MARK: - Initialize SDK
-    @objc(initializeSDK:)
-    func initializeSDK(_ command: CDVInvokedUrlCommand) {
-        guard let apiKey = command.argument(at: 0) as? String, !apiKey.isEmpty else {
-            let pluginResult = CDVPluginResult(status: .error, messageAs: "API key is missing.")
-            self.commandDelegate.send(pluginResult, callbackId: command.callbackId)
-            return
+        init(listView: StorytellerListView) {
+            self.listView = listView
+            super.init(nibName: nil, bundle: nil)
         }
 
-        guard let userId = command.argument(at: 1) as? String else {
-            let pluginResult = CDVPluginResult(status: .error, messageAs: "User ID is missing.")
-            self.commandDelegate.send(pluginResult, callbackId: command.callbackId)
-            return
+        required init?(coder: NSCoder) {
+            fatalError("init(coder:) has not been implemented")
         }
 
-        let userInput = UserInput(externalId: userId)
+        override func viewDidLoad() {
+            super.viewDidLoad()
+            view.backgroundColor = .systemBackground
+            listView.translatesAutoresizingMaskIntoConstraints = false
+            view.addSubview(listView)
+            NSLayoutConstraint.activate([
+                listView.leadingAnchor.constraint(equalTo: view.leadingAnchor),
+                listView.trailingAnchor.constraint(equalTo: view.trailingAnchor),
+                listView.topAnchor.constraint(equalTo: view.safeAreaLayoutGuide.topAnchor),
+                listView.bottomAnchor.constraint(lessThanOrEqualTo: view.bottomAnchor)
+            ])
 
-        Task {
-            do {
-                try await Storyteller.initialize(apiKey: apiKey, userInput: userInput)
-                print("Storyteller SDK initialized for user: \(userId)")
-                let result = CDVPluginResult(status: .ok, messageAs: "Storyteller SDK initialized for user: \(userId)")
+            listView.reloadData()
+        }
+    }
                 self.commandDelegate.send(result, callbackId: command.callbackId)
             } catch {
                 print("Storyteller SDK Init Error: \(error)")
@@ -256,12 +253,6 @@ class CDVStoryteller: CDVPlugin {
     }*/
 
     // MARK: - Show Stories Row View
-    // JS usage: showStoriesRowView()
-    @objc(showStoriesRowView:)
-    func showStoriesRowView(_ command: CDVInvokedUrlCommand) {
-        handleListViewCommand(command, forcedContentKind: .stories, forcedLayoutKind: .row)
-    }
-
     // JS usage: showListView({ contentType: 'stories'|'clips', layout: 'row'|'grid', ... })
     @objc(showListView:)
     func showListView(_ command: CDVInvokedUrlCommand) {

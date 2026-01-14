@@ -22,7 +22,6 @@ Important: all functions support both callback-style and Promise/async-await sty
 | `initialize(apiKey, userId)` | Bootstraps the Storyteller SDK for the current Cordova session. |
 | `showStorytellerView()` | Presents the fully native Storyteller experience fullscreen. |
 | `showListView(options)` | Presents any Storyteller list view (stories/clips, row/grid) following the official SDK doc. |
-| `showStoriesRowView(options)` | Shows a modal Stories Row filtered by categories/attributes. |
 | `showStoriesRowInline(options)` | Renders the Stories Row inline on top of the WebView with custom layout. |
 | `updateStoriesRowInlineLayout(layoutOptions)` | Moves/resizes/toggles the inline Stories Row without reloading content. |
 | `removeStoriesRowInline()` | Tears down the inline Stories Row and releases native resources. |
@@ -90,15 +89,10 @@ await cordova.plugins.storyteller.showListView({
 });
 ```
 
-### showStoriesRowView(options)
-Shorthand for `showListView({ contentType: 'stories', layout: 'row', ... })`.
-All filtering/options are the same, so consult the `showListView` section above.
-If you pass callbacks they are forwarded to `showListView`.
-
 ### showStoriesRowInline(options)
 Renders the same Stories Row component directly on top of your Cordova WebView so it occupies only a slice of the screen. You **must** provide at least one category/attribute plus the layout coordinates that describe where the row should sit.
 
-Supported filter keys are the same as `showStoriesRowView`. Layout keys (top-level or inside `options.layout`) include:
+Supported filter keys are the same as calling `showListView({ contentType: 'stories', layout: 'row', ... })`. Layout keys (top-level or inside `options.layout`) include:
 
 - `top` / `y`: distance in points from the top anchor (default `0`).
 - `left` / `leading` / `x`: distance from the leading edge (default `0`).

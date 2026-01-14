@@ -427,26 +427,6 @@ Storyteller.showListView = function(options, successCallback, errorCallback) {
     return execPromise('showListView', [payload], successCallback, errorCallback);
 };
 
-Storyteller.showStoriesRowView = function(options, successCallback, errorCallback) {
-    if (typeof options === 'function') {
-        errorCallback = successCallback;
-        successCallback = options;
-        options = undefined;
-    }
-
-    if (options && typeof options !== 'object') {
-        const err = 'Options must be an object when provided.';
-        if (typeof errorCallback === 'function') errorCallback(err);
-        return Promise.reject(err);
-    }
-
-    var merged = Object.assign({}, options || {});
-    merged.contentType = 'stories';
-    merged.layout = 'row';
-
-    return Storyteller.showListView(merged, successCallback, errorCallback);
-};
-
 Storyteller.showStoriesRowInline = function(options, successCallback, errorCallback) {
     if (!options || typeof options !== 'object') {
         const err = 'Options object with at least one category is required.';
