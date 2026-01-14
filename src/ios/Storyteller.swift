@@ -259,17 +259,35 @@ class CDVStoryteller: CDVPlugin {
     // JS usage: showStoriesRowView()
     @objc(showStoriesRowView:)
     func showStoriesRowView(_ command: CDVInvokedUrlCommand) {
+        handleListViewCommand(command, forcedContentKind: .stories, forcedLayoutKind: .row)
+    }
+
+    // JS usage: showListView({ contentType: 'stories'|'clips', layout: 'row'|'grid', ... })
+    @objc(showListView:)
+    func showListView(_ command: CDVInvokedUrlCommand) {
+        handleListViewCommand(command, forcedContentKind: nil, forcedLayoutKind: nil)
+    }
+
+    private func handleListViewCommand(_ command: CDVInvokedUrlCommand,
+                                       forcedContentKind: StorytellerListContentKind?,
+                                       forcedLayoutKind: StorytellerListLayoutKind?) {
         do {
-            let options = command.argument(at: 0) as? [String: Any]
-            let configuration = try StoriesRowConfigurationBuilder.makeConfiguration(from: options)
+            let rawOptions = command.argument(at: 0) as? [String: Any]
+            let presentationOptions = try StorytellerListViewOptionsBuilder.makeOptions(
+                from: rawOptions,
+                forcedContentKind: forcedContentKind,
+                forcedLayoutKind: forcedLayoutKind
+            )
 
             DispatchQueue.main.async {
-                let vc = StoriesRowViewController(configuration: configuration)
-                vc.modalPresentationStyle = .fullScreen
-                self.viewController.present(vc, animated: true, completion: nil)
-
-                let pluginResult = CDVPluginResult(status: .ok, messageAs: "Stories row view presented.")
-                self.commandDelegate.send(pluginResult, callbackId: command.callbackId)
+                do {
+                    try self.presentListView(options: presentationOptions)
+                    let result = CDVPluginResult(status: .ok, messageAs: "Storyteller list view presented.")
+                    self.commandDelegate.send(result, callbackId: command.callbackId)
+                } catch {
+                    let pluginResult = CDVPluginResult(status: .error, messageAs: error.localizedDescription)
+                    self.commandDelegate.send(pluginResult, callbackId: command.callbackId)
+                }
             }
         } catch {
             let pluginResult = CDVPluginResult(status: .error, messageAs: error.localizedDescription)
@@ -338,14 +356,12 @@ class CDVStoryteller: CDVPlugin {
         }
     }
 
-    // Private UIViewController to host StorytellerStoriesRowView
-    private class StoriesRowViewController: UIViewController {
-        private let configuration: StorytellerStoriesListConfiguration?
-        private let storiesRowView = StorytellerStoriesRowView()
-        private let storytellerDelegate = StorytellerHandler.shared
+    // Private UIViewController to host any Storyteller list view
+    private final class StorytellerHostedListViewController: UIViewController {
+        private let listView: StorytellerListView
 
-        init(configuration: StorytellerStoriesListConfiguration?) {
-            self.configuration = configuration
+        init(listView: StorytellerListView) {
+            self.listView = listView
             super.init(nibName: nil, bundle: nil)
         }
 
@@ -356,22 +372,35 @@ class CDVStoryteller: CDVPlugin {
         override func viewDidLoad() {
             super.viewDidLoad()
             view.backgroundColor = .systemBackground
-            storiesRowView.translatesAutoresizingMaskIntoConstraints = false
-            storiesRowView.delegate = storytellerDelegate
-            view.addSubview(storiesRowView)
+            listView.translatesAutoresizingMaskIntoConstraints = false
+            view.addSubview(listView)
             NSLayoutConstraint.activate([
-                storiesRowView.leadingAnchor.constraint(equalTo: view.leadingAnchor),
-                storiesRowView.trailingAnchor.constraint(equalTo: view.trailingAnchor),
-                storiesRowView.topAnchor.constraint(equalTo: view.safeAreaLayoutGuide.topAnchor),
-                storiesRowView.heightAnchor.constraint(equalToConstant: 240)
+                listView.leadingAnchor.constraint(equalTo: view.safeAreaLayoutGuide.leadingAnchor),
+                listView.trailingAnchor.constraint(equalTo: view.safeAreaLayoutGuide.trailingAnchor),
+                listView.topAnchor.constraint(equalTo: view.safeAreaLayoutGuide.topAnchor),
+                listView.bottomAnchor.constraint(equalTo: view.bottomAnchor)
             ])
-
-            if let configuration = configuration {
-                storiesRowView.configure(with: configuration)
-            }
-
-            storiesRowView.reloadData()
         }
+
+        override func viewDidAppear(_ animated: Bool) {
+            super.viewDidAppear(animated)
+            listView.reloadData()
+        }
+    }
+
+    @MainActor
+    private func presentListView(options: StorytellerListPresentationOptions) throws {
+        guard let presenter = self.viewController else {
+            throw StorytellerListPresentationError.missingPresenter
+        }
+
+        let listView = StorytellerListViewFactory.makeListView(content: options.content, layout: options.layout)
+        listView.delegate = StorytellerHandler.shared
+
+        let controller = StorytellerHostedListViewController(listView: listView)
+        controller.modalPresentationStyle = .fullScreen
+
+        presenter.present(controller, animated: true)
     }
 
     // MARK: - Inline Stories Row helpers
@@ -656,6 +685,130 @@ class CDVStoryteller: CDVPlugin {
         }
     }
 
+    private enum StorytellerListPresentationError: LocalizedError {
+        case missingPresenter
+
+        var errorDescription: String? {
+            switch self {
+            case .missingPresenter:
+                return "Unable to find a view controller to present the Storyteller list view."
+            }
+        }
+    }
+
+    private enum StorytellerListViewOptionsError: LocalizedError {
+        case missingCollectionIdentifier
+
+        var errorDescription: String? {
+            switch self {
+            case .missingCollectionIdentifier:
+                return "A collectionId (or collection code) is required to show clips list views."
+            }
+        }
+    }
+
+    private struct StorytellerListPresentationOptions {
+        let content: StorytellerListContent
+        let layout: StorytellerListLayout
+    }
+
+    private enum StorytellerListContent {
+        case stories(configuration: StorytellerStoriesListConfiguration)
+        case clips(configuration: StorytellerClipsListConfiguration)
+    }
+
+    private enum StorytellerListLayout {
+        case row
+        case grid(isScrollable: Bool)
+    }
+
+    private enum StorytellerListContentKind: String {
+        case stories
+        case clips
+
+        init?(value: Any?) {
+            guard let raw = (value as? String)?.trimmingCharacters(in: .whitespacesAndNewlines), !raw.isEmpty else {
+                return nil
+            }
+            self.init(rawValue: raw.lowercased())
+        }
+    }
+
+    private enum StorytellerListLayoutKind: String {
+        case row
+        case grid
+
+        init?(value: Any?) {
+            guard let raw = (value as? String)?.trimmingCharacters(in: .whitespacesAndNewlines), !raw.isEmpty else {
+                return nil
+            }
+            self.init(rawValue: raw.lowercased())
+        }
+    }
+
+    private enum StorytellerListViewFactory {
+        static func makeListView(content: StorytellerListContent, layout: StorytellerListLayout) -> StorytellerListView {
+            switch (content, layout) {
+            case let (.stories(configuration), .row):
+                let view = StorytellerStoriesRowView()
+                view.configure(with: configuration)
+                return view
+            case let (.stories(configuration), .grid(isScrollable)):
+                let view = StorytellerStoriesGridView(isScrollable: isScrollable)
+                view.configure(with: configuration)
+                return view
+            case let (.clips(configuration), .row):
+                let view = StorytellerClipsRowView()
+                view.configure(with: configuration)
+                return view
+            case let (.clips(configuration), .grid(isScrollable)):
+                let view = StorytellerClipsGridView(isScrollable: isScrollable)
+                view.configure(with: configuration)
+                return view
+            }
+        }
+    }
+
+    private enum StorytellerListViewOptionsBuilder {
+        static func makeOptions(from rawOptions: [String: Any]?,
+                                forcedContentKind: StorytellerListContentKind?,
+                                forcedLayoutKind: StorytellerListLayoutKind?) throws -> StorytellerListPresentationOptions {
+            var sanitized = PluginOptionsSanitizer.sanitize(dictionary: rawOptions) ?? [:]
+
+            if let configurationDictionary = sanitized["configuration"] as? [String: Any],
+               let cleanedConfiguration = PluginOptionsSanitizer.sanitize(dictionary: configurationDictionary) {
+                cleanedConfiguration.forEach { sanitized[$0.key] = $0.value }
+            }
+            sanitized.removeValue(forKey: "configuration")
+
+            let contentKind = forcedContentKind ?? StorytellerListContentKind(
+                value: sanitized["contentType"] ?? sanitized["type"] ?? sanitized["content"]
+            ) ?? .stories
+
+            let layoutKind = forcedLayoutKind ?? StorytellerListLayoutKind(
+                value: sanitized["layout"] ?? sanitized["listLayout"] ?? sanitized["view"]
+            ) ?? .row
+
+            let scrollable = PluginValueParser.bool(from: sanitized["scrollable"] ?? sanitized["isScrollable"] ?? sanitized["gridScrollable"]) ?? true
+
+            let content: StorytellerListContent
+            switch contentKind {
+            case .stories:
+                guard let configuration = try StoriesRowConfigurationBuilder.makeConfiguration(from: sanitized) else {
+                    throw StoriesRowConfigurationError.missingCategories
+                }
+                content = .stories(configuration: configuration)
+            case .clips:
+                let configuration = try ClipsListConfigurationBuilder.makeConfiguration(from: sanitized)
+                content = .clips(configuration: configuration)
+            }
+
+            let layout: StorytellerListLayout = layoutKind == .grid ? .grid(isScrollable: scrollable) : .row
+
+            return StorytellerListPresentationOptions(content: content, layout: layout)
+        }
+    }
+
     private enum InlineAttachmentMode {
         case overlay
         case scrollContent
@@ -782,6 +935,44 @@ class CDVStoryteller: CDVPlugin {
 
     }
 
+    private enum ClipsListConfigurationBuilder {
+        static func makeConfiguration(from options: [String: Any]?) throws -> StorytellerClipsListConfiguration {
+            guard let options = PluginOptionsSanitizer.sanitize(dictionary: options), !options.isEmpty else {
+                throw StorytellerListViewOptionsError.missingCollectionIdentifier
+            }
+
+            guard let collectionId = collectionIdentifier(from: options) else {
+                throw StorytellerListViewOptionsError.missingCollectionIdentifier
+            }
+
+            let cellType = StoriesRowConfigurationBuilder.cellType(from: options["cellType"] ?? options["cell_type"])
+            let displayLimit = PluginValueParser.int(from: options["displayLimit"] ?? options["display_limit"])
+            let visibleTiles = PluginValueParser.double(from: options["visibleTiles"] ?? options["visible_tiles"])
+
+            return StorytellerClipsListConfiguration(
+                collectionId: collectionId,
+                cellType: cellType,
+                theme: nil,
+                uiStyle: nil,
+                displayLimit: displayLimit,
+                visibleTiles: visibleTiles
+            )
+        }
+
+        private static func collectionIdentifier(from options: [String: Any]) -> String? {
+            let keys = ["collectionId", "collection_id", "collection", "collectionCode", "collectionIdentifier"]
+            for key in keys {
+                if let value = options[key] as? String {
+                    let trimmed = value.trimmingCharacters(in: .whitespacesAndNewlines)
+                    if !trimmed.isEmpty {
+                        return trimmed
+                    }
+                }
+            }
+            return nil
+        }
+    }
+
     private enum StoriesRowConfigurationBuilder {
         static func makeConfiguration(from options: [String: Any]?) throws -> StorytellerStoriesListConfiguration? {
             guard let options = PluginOptionsSanitizer.sanitize(dictionary: options), !options.isEmpty else {
@@ -833,7 +1024,7 @@ class CDVStoryteller: CDVPlugin {
             return []
         }
 
-        private static func cellType(from value: Any?) -> StorytellerListViewCellType? {
+        static func cellType(from value: Any?) -> StorytellerListViewCellType? {
             guard let raw = (value as? String)?.trimmingCharacters(in: .whitespacesAndNewlines).lowercased(), !raw.isEmpty else {
                 return nil
             }

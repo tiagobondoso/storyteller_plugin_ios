@@ -21,6 +21,7 @@ Important: all functions support both callback-style and Promise/async-await sty
 | --- | --- |
 | `initialize(apiKey, userId)` | Bootstraps the Storyteller SDK for the current Cordova session. |
 | `showStorytellerView()` | Presents the fully native Storyteller experience fullscreen. |
+| `showListView(options)` | Presents any Storyteller list view (stories/clips, row/grid) following the official SDK doc. |
 | `showStoriesRowView(options)` | Shows a modal Stories Row filtered by categories/attributes. |
 | `showStoriesRowInline(options)` | Renders the Stories Row inline on top of the WebView with custom layout. |
 | `updateStoriesRowInlineLayout(layoutOptions)` | Moves/resizes/toggles the inline Stories Row without reloading content. |
@@ -51,36 +52,48 @@ Present the full native storyteller view.
 cordova.plugins.storyteller.showStorytellerView();
 ```
 
-### showStoriesRowView(options)
-Presents a native Stories Row filtered by the content attributes/categories you pass in `options`.
+### showListView(options)
+This is the generic entrypoint that mirrors the [Storyteller list view documentation](https://docs.getstoryteller.com/ios/StorytellerListViews/).
+You decide the content type (Stories vs Clips) and the layout (Row vs Grid) and the plugin creates the matching `StorytellerStoriesRowView`, `StorytellerStoriesGridView`, `StorytellerClipsRowView` or `StorytellerClipsGridView`, including scrollable/non-scrollable grids.
 
-`options` is optional (defaults to the SDK's standard feed), but you can provide:
+Supported options:
 
-- `categories` / `categoryIds` / `attributeIds`: array of category or attribute identifiers used by your Storyteller CMS filters.
-- `category` / `attribute`: single identifier (string) – shorthand if you only need one filter.
-- `cellType`: `'round'` or `'square'` to control the tile shape.
-- `displayLimit`: maximum number of tiles to request.
-- `visibleTiles`: fractional number of tiles that should stay visible (e.g., `2.5`).
+- `contentType`: `'stories'` (default) or `'clips'`.
+- `layout`: `'row'` (default) or `'grid'`.
+- `scrollable`: `true`/`false` (grid only – controls the `isScrollable` initializer argument).
+- `categories` / `categoryIds` / `attributeIds` / `tags`: array/string filters for Stories views (required for stories).
+- `collectionId` / `collection`: identifier of the clips collection to display (required for clips).
+- `cellType`: `'round'` or `'square'` (maps to `StorytellerListViewCellType`).
+- `displayLimit`: maximum number of tiles the SDK should fetch.
+- `visibleTiles`: fractional number of tiles that must remain visible (e.g., `2.5`).
 
-Example:
+Examples:
 
 ```javascript
-await cordova.plugins.storyteller.showStoriesRowView({
-  categories: ['benfica-top-row'],
+// Stories row (same behaviour as showStoriesRowView)
+await cordova.plugins.storyteller.showListView({
+  contentType: 'stories',
+  layout: 'row',
+  categories: ['homepage-row'],
   cellType: 'round',
-  displayLimit: 10
+  visibleTiles: 3.5
+});
+
+// Clips grid, paged (non-scrollable) with a fixed collection
+await cordova.plugins.storyteller.showListView({
+  contentType: 'clips',
+  layout: 'grid',
+  scrollable: false,
+  collectionId: 'clips-home',
+  cellType: 'square',
+  displayLimit: 12
 });
 ```
 
-The method still accepts callbacks if you prefer:
-
-```javascript
-cordova.plugins.storyteller.showStoriesRowView(
-  { attribute: 'sponsored' },
-  () => console.log('row shown'),
-  err => console.error(err)
-);
-```
+### showStoriesRowView(options)
+Shorthand for `showListView({ contentType: 'stories', layout: 'row', ... })`.
+All filtering/options are the same, so consult the `showListView` section above.
+If you pass callbacks they are forwarded to `showListView`.
 
 ### showStoriesRowInline(options)
 Renders the same Stories Row component directly on top of your Cordova WebView so it occupies only a slice of the screen. You **must** provide at least one category/attribute plus the layout coordinates that describe where the row should sit.
