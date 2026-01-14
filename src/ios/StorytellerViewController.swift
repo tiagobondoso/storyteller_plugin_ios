@@ -8,7 +8,7 @@ class StorytellerViewController: UIViewController {
     private let storytellerClipsRow = StorytellerClipsRowView()
     private let storytellerStoriesGrid = StorytellerStoriesGridView(isScrollable: true)
     private let storytellerClipsGrid = StorytellerClipsGridView(isScrollable: true)
-    private let storytellerDelegate = StorytellerHandler()
+    private let storytellerDelegate = StorytellerHandler.shared
     
     override func viewDidLoad() {
         super.viewDidLoad()

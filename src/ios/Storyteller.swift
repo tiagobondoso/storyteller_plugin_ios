@@ -1,10 +1,18 @@
 
 // StorytellerPlugin.swift
 import Foundation
+import UIKit
 import StorytellerSDK
 
 @objc(CDVStoryteller)
 class CDVStoryteller: CDVPlugin {
+
+    private var inlineStoriesRowContainer: UIView?
+    private var inlineStoriesRowView: StorytellerStoriesRowView?
+    private var inlineTopConstraint: NSLayoutConstraint?
+    private var inlineLeadingConstraint: NSLayoutConstraint?
+    private var inlineTrailingConstraint: NSLayoutConstraint?
+    private var inlineHeightConstraint: NSLayoutConstraint?
 
     // MARK: - Initialize SDK
     @objc(initializeSDK:)
@@ -263,11 +271,72 @@ class CDVStoryteller: CDVPlugin {
         }
     }
 
+    // JS usage: showStoriesRowInline({ categories: [], layout: { top: 200, height: 220 } })
+    @objc(showStoriesRowInline:)
+    func showStoriesRowInline(_ command: CDVInvokedUrlCommand) {
+        do {
+            guard let sanitizedOptions = PluginOptionsSanitizer.sanitize(dictionary: command.argument(at: 0) as? [String: Any]),
+                  !sanitizedOptions.isEmpty else {
+                throw StoriesRowConfigurationError.missingCategories
+            }
+
+            guard let configuration = try StoriesRowConfigurationBuilder.makeConfiguration(from: sanitizedOptions) else {
+                throw StoriesRowConfigurationError.missingCategories
+            }
+
+            let layoutOptions = sanitizedOptions["layout"] as? [String: Any]
+            let layout = InlineLayoutBuilder.makeLayout(from: layoutOptions ?? sanitizedOptions)
+
+            DispatchQueue.main.async {
+                do {
+                    try self.mountInlineStoriesRow(configuration: configuration, layout: layout)
+                    let pluginResult = CDVPluginResult(status: .ok, messageAs: "Inline stories row rendered.")
+                    self.commandDelegate.send(pluginResult, callbackId: command.callbackId)
+                } catch {
+                    let result = CDVPluginResult(status: .error, messageAs: error.localizedDescription)
+                    self.commandDelegate.send(result, callbackId: command.callbackId)
+                }
+            }
+        } catch {
+            let pluginResult = CDVPluginResult(status: .error, messageAs: error.localizedDescription)
+            self.commandDelegate.send(pluginResult, callbackId: command.callbackId)
+        }
+    }
+
+    // JS usage: updateStoriesRowInlineLayout({ top: 320, height: 200 })
+    @objc(updateStoriesRowInlineLayout:)
+    func updateStoriesRowInlineLayout(_ command: CDVInvokedUrlCommand) {
+        guard inlineStoriesRowContainer != nil else {
+            let pluginResult = CDVPluginResult(status: .error, messageAs: "Inline stories row is not mounted.")
+            self.commandDelegate.send(pluginResult, callbackId: command.callbackId)
+            return
+        }
+
+        let layoutDictionary = command.argument(at: 0) as? [String: Any]
+        let layout = InlineLayoutBuilder.makeLayout(from: layoutDictionary)
+
+        DispatchQueue.main.async {
+            self.applyInlineLayout(layout)
+            let pluginResult = CDVPluginResult(status: .ok, messageAs: "Inline stories row layout updated.")
+            self.commandDelegate.send(pluginResult, callbackId: command.callbackId)
+        }
+    }
+
+    // JS usage: removeStoriesRowInline()
+    @objc(removeStoriesRowInline:)
+    func removeStoriesRowInline(_ command: CDVInvokedUrlCommand) {
+        DispatchQueue.main.async {
+            self.teardownInlineStoriesRow()
+            let pluginResult = CDVPluginResult(status: .ok, messageAs: "Inline stories row removed.")
+            self.commandDelegate.send(pluginResult, callbackId: command.callbackId)
+        }
+    }
+
     // Private UIViewController to host StorytellerStoriesRowView
     private class StoriesRowViewController: UIViewController {
         private let configuration: StorytellerStoriesListConfiguration?
         private let storiesRowView = StorytellerStoriesRowView()
-        private let storytellerDelegate = StorytellerHandler()
+        private let storytellerDelegate = StorytellerHandler.shared
 
         init(configuration: StorytellerStoriesListConfiguration?) {
             self.configuration = configuration
@@ -299,6 +368,81 @@ class CDVStoryteller: CDVPlugin {
         }
     }
 
+    // MARK: - Inline Stories Row helpers
+    private func mountInlineStoriesRow(configuration: StorytellerStoriesListConfiguration, layout: InlineLayoutOptions) throws {
+        guard let hostView = self.viewController?.view else {
+            throw InlineStoriesRowError.missingHostView
+        }
+
+        teardownInlineStoriesRow()
+
+        let container = UIView()
+        container.translatesAutoresizingMaskIntoConstraints = false
+        container.backgroundColor = layout.backgroundColor ?? .clear
+        container.layer.cornerRadius = layout.cornerRadius
+        container.clipsToBounds = layout.cornerRadius > 0
+
+        let storiesRowView = StorytellerStoriesRowView()
+        storiesRowView.translatesAutoresizingMaskIntoConstraints = false
+        storiesRowView.delegate = StorytellerHandler.shared
+        storiesRowView.configure(with: configuration)
+
+        container.addSubview(storiesRowView)
+        NSLayoutConstraint.activate([
+            storiesRowView.leadingAnchor.constraint(equalTo: container.leadingAnchor),
+            storiesRowView.trailingAnchor.constraint(equalTo: container.trailingAnchor),
+            storiesRowView.topAnchor.constraint(equalTo: container.topAnchor),
+            storiesRowView.bottomAnchor.constraint(equalTo: container.bottomAnchor)
+        ])
+
+    hostView.addSubview(container)
+    hostView.bringSubviewToFront(container)
+
+        let topAnchorTarget: NSLayoutYAxisAnchor = layout.useSafeArea ? hostView.safeAreaLayoutGuide.topAnchor : hostView.topAnchor
+
+        let topConstraint = container.topAnchor.constraint(equalTo: topAnchorTarget, constant: layout.top)
+        let leadingConstraint = container.leadingAnchor.constraint(equalTo: hostView.leadingAnchor, constant: layout.leading)
+        let trailingConstraint = container.trailingAnchor.constraint(equalTo: hostView.trailingAnchor, constant: -layout.trailing)
+        let heightConstraint = container.heightAnchor.constraint(equalToConstant: layout.height)
+
+        NSLayoutConstraint.activate([topConstraint, leadingConstraint, trailingConstraint, heightConstraint])
+
+        inlineStoriesRowContainer = container
+        inlineStoriesRowView = storiesRowView
+        inlineTopConstraint = topConstraint
+        inlineLeadingConstraint = leadingConstraint
+        inlineTrailingConstraint = trailingConstraint
+        inlineHeightConstraint = heightConstraint
+
+        storiesRowView.reloadData()
+        applyInlineLayout(layout)
+    }
+
+    private func applyInlineLayout(_ layout: InlineLayoutOptions) {
+        inlineTopConstraint?.constant = layout.top
+        inlineLeadingConstraint?.constant = layout.leading
+        inlineTrailingConstraint?.constant = -layout.trailing
+        inlineHeightConstraint?.constant = layout.height
+        inlineStoriesRowContainer?.backgroundColor = layout.backgroundColor ?? .clear
+        inlineStoriesRowContainer?.layer.cornerRadius = layout.cornerRadius
+        inlineStoriesRowContainer?.clipsToBounds = layout.cornerRadius > 0
+        inlineStoriesRowContainer?.isHidden = layout.isHidden
+        inlineStoriesRowContainer?.setNeedsLayout()
+        inlineStoriesRowContainer?.layoutIfNeeded()
+    }
+
+    private func teardownInlineStoriesRow() {
+        inlineStoriesRowView?.delegate = nil
+        inlineStoriesRowView?.removeFromSuperview()
+        inlineStoriesRowContainer?.removeFromSuperview()
+        inlineStoriesRowView = nil
+        inlineStoriesRowContainer = nil
+        inlineTopConstraint = nil
+        inlineLeadingConstraint = nil
+        inlineTrailingConstraint = nil
+        inlineHeightConstraint = nil
+    }
+
     private enum StoriesRowConfigurationError: LocalizedError {
         case missingCategories
 
@@ -310,9 +454,117 @@ class CDVStoryteller: CDVPlugin {
         }
     }
 
+    private enum InlineStoriesRowError: LocalizedError {
+        case missingHostView
+
+        var errorDescription: String? {
+            switch self {
+            case .missingHostView:
+                return "Unable to find a host view to display the inline Stories Row."
+            }
+        }
+    }
+
+    private struct InlineLayoutOptions {
+        let top: CGFloat
+        let leading: CGFloat
+        let trailing: CGFloat
+        let height: CGFloat
+        let useSafeArea: Bool
+        let backgroundColor: UIColor?
+        let cornerRadius: CGFloat
+        let isHidden: Bool
+    }
+
+    private enum InlineLayoutBuilder {
+        static func makeLayout(from options: [String: Any]?) -> InlineLayoutOptions {
+            let sanitized = PluginOptionsSanitizer.sanitize(dictionary: options) ?? [:]
+
+            let horizontalPadding = PluginValueParser.double(from: sanitized["horizontalPadding"]) ?? 0
+            let top = CGFloat(PluginValueParser.double(from: sanitized["top"] ?? sanitized["y"]) ?? 0)
+            let leading = CGFloat(PluginValueParser.double(from: sanitized["left"] ?? sanitized["leading"] ?? sanitized["x"]) ?? horizontalPadding)
+            let trailing = CGFloat(PluginValueParser.double(from: sanitized["right"] ?? sanitized["trailing"]) ?? horizontalPadding)
+            let height = CGFloat(PluginValueParser.double(from: sanitized["height"]) ?? 220)
+            let useSafeArea = PluginValueParser.bool(from: sanitized["useSafeArea"]) ?? true
+            let cornerRadius = CGFloat(PluginValueParser.double(from: sanitized["cornerRadius"]) ?? 0)
+            let isHidden = PluginValueParser.bool(from: sanitized["hidden"] ?? sanitized["isHidden"]) ?? false
+
+            let backgroundColorHex = (sanitized["backgroundColor"] as? String)?.trimmingCharacters(in: .whitespacesAndNewlines)
+            let backgroundColor: UIColor?
+            if let hex = backgroundColorHex, !hex.isEmpty {
+                backgroundColor = UIColor.from(hexString: hex)
+            } else {
+                backgroundColor = nil
+            }
+
+            return InlineLayoutOptions(
+                top: top,
+                leading: leading,
+                trailing: trailing,
+                height: height,
+                useSafeArea: useSafeArea,
+                backgroundColor: backgroundColor,
+                cornerRadius: cornerRadius,
+                isHidden: isHidden
+            )
+        }
+    }
+
+    private enum PluginOptionsSanitizer {
+        static func sanitize(dictionary: [String: Any]?) -> [String: Any]? {
+            guard let dictionary = dictionary else { return nil }
+            var sanitized: [String: Any] = [:]
+            dictionary.forEach { key, value in
+                if !(value is NSNull) {
+                    sanitized[key] = value
+                }
+            }
+            return sanitized
+        }
+    }
+
+    private enum PluginValueParser {
+        static func int(from value: Any?) -> Int? {
+            switch value {
+            case let number as NSNumber:
+                return number.intValue
+            case let string as String:
+                return Int(string.trimmingCharacters(in: .whitespacesAndNewlines))
+            default:
+                return nil
+            }
+        }
+
+        static func double(from value: Any?) -> Double? {
+            switch value {
+            case let number as NSNumber:
+                return number.doubleValue
+            case let string as String:
+                return Double(string.replacingOccurrences(of: ",", with: ".").trimmingCharacters(in: .whitespacesAndNewlines))
+            default:
+                return nil
+            }
+        }
+
+        static func bool(from value: Any?) -> Bool? {
+            switch value {
+            case let number as NSNumber:
+                return number.boolValue
+            case let string as String:
+                let normalized = string.trimmingCharacters(in: .whitespacesAndNewlines).lowercased()
+                if ["true", "1", "yes", "y", "sim"].contains(normalized) { return true }
+                if ["false", "0", "no", "n", "nao", "não"].contains(normalized) { return false }
+                return nil
+            default:
+                return nil
+            }
+        }
+
+    }
+
     private enum StoriesRowConfigurationBuilder {
         static func makeConfiguration(from options: [String: Any]?) throws -> StorytellerStoriesListConfiguration? {
-            guard let options = sanitize(dictionary: options), !options.isEmpty else {
+            guard let options = PluginOptionsSanitizer.sanitize(dictionary: options), !options.isEmpty else {
                 return nil
             }
 
@@ -322,8 +574,8 @@ class CDVStoryteller: CDVPlugin {
             }
 
             let cellType = cellType(from: options["cellType"] ?? options["cell_type"])
-            let displayLimit = intValue(from: options["displayLimit"] ?? options["display_limit"])
-            let visibleTiles = doubleValue(from: options["visibleTiles"] ?? options["visible_tiles"])
+            let displayLimit = PluginValueParser.int(from: options["displayLimit"] ?? options["display_limit"])
+            let visibleTiles = PluginValueParser.double(from: options["visibleTiles"] ?? options["visible_tiles"])
 
             return StorytellerStoriesListConfiguration(
                 categories: categories,
@@ -333,17 +585,6 @@ class CDVStoryteller: CDVPlugin {
                 displayLimit: displayLimit,
                 visibleTiles: visibleTiles
             )
-        }
-
-        private static func sanitize(dictionary: [String: Any]?) -> [String: Any]? {
-            guard let dictionary = dictionary else { return nil }
-            var sanitized: [String: Any] = [:]
-            dictionary.forEach { key, value in
-                if !(value is NSNull) {
-                    sanitized[key] = value
-                }
-            }
-            return sanitized
         }
 
         private static func extractCategories(from options: [String: Any]) -> [String] {
@@ -379,28 +620,6 @@ class CDVStoryteller: CDVPlugin {
             return StorytellerListViewCellType(rawValue: raw)
         }
 
-        private static func intValue(from value: Any?) -> Int? {
-            switch value {
-            case let number as NSNumber:
-                return number.intValue
-            case let string as String:
-                return Int(string.trimmingCharacters(in: .whitespacesAndNewlines))
-            default:
-                return nil
-            }
-        }
-
-        private static func doubleValue(from value: Any?) -> Double? {
-            switch value {
-            case let number as NSNumber:
-                return number.doubleValue
-            case let string as String:
-                return Double(string.replacingOccurrences(of: ",", with: ".").trimmingCharacters(in: .whitespacesAndNewlines))
-            default:
-                return nil
-            }
-        }
-
         private static func normalizeStrings(from value: Any?) -> [String] {
             if let strings = value as? [String] {
                 return strings.compactMap { trimmed($0) }
@@ -427,4 +646,36 @@ class CDVStoryteller: CDVPlugin {
         }
     }
 
+}
+
+private extension UIColor {
+    static func from(hexString: String) -> UIColor? {
+        var hex = hexString.trimmingCharacters(in: .whitespacesAndNewlines)
+        if hex.hasPrefix("#") { hex.removeFirst() }
+
+        guard hex.count == 6 || hex.count == 8 else { return nil }
+
+        var int: UInt64 = 0
+        guard Scanner(string: hex).scanHexInt64(&int) else { return nil }
+
+        let a, r, g, b: UInt64
+        if hex.count == 8 {
+            a = (int & 0xFF000000) >> 24
+            r = (int & 0x00FF0000) >> 16
+            g = (int & 0x0000FF00) >> 8
+            b = int & 0x000000FF
+        } else {
+            a = 255
+            r = (int & 0xFF0000) >> 16
+            g = (int & 0x00FF00) >> 8
+            b = int & 0x0000FF
+        }
+
+        return UIColor(
+            red: CGFloat(r) / 255.0,
+            green: CGFloat(g) / 255.0,
+            blue: CGFloat(b) / 255.0,
+            alpha: CGFloat(a) / 255.0
+        )
+    }
 }

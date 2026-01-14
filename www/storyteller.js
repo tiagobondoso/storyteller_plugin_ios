@@ -126,6 +126,30 @@ Storyteller.showStoriesRowView = function(options, successCallback, errorCallbac
     return execPromise('showStoriesRowView', args, successCallback, errorCallback);
 };
 
+Storyteller.showStoriesRowInline = function(options, successCallback, errorCallback) {
+    if (!options || typeof options !== 'object') {
+        const err = 'Options object with at least one category is required.';
+        if (typeof errorCallback === 'function') errorCallback(err);
+        return Promise.reject(err);
+    }
+
+    return execPromise('showStoriesRowInline', [options], successCallback, errorCallback);
+};
+
+Storyteller.updateStoriesRowInlineLayout = function(layoutOptions, successCallback, errorCallback) {
+    if (!layoutOptions || typeof layoutOptions !== 'object') {
+        const err = 'Layout options object is required.';
+        if (typeof errorCallback === 'function') errorCallback(err);
+        return Promise.reject(err);
+    }
+
+    return execPromise('updateStoriesRowInlineLayout', [layoutOptions], successCallback, errorCallback);
+};
+
+Storyteller.removeStoriesRowInline = function(successCallback, errorCallback) {
+    return execPromise('removeStoriesRowInline', [], successCallback, errorCallback);
+};
+
 
 // COM ESTE CÓDIGO DÁ ERROS A GERAR A BUILD
 /*

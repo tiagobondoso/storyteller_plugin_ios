@@ -3,7 +3,9 @@ import UIKit
 import StorytellerSDK
 
 class StorytellerHandler: NSObject, StorytellerDelegate, StorytellerListViewDelegate {
-    override init() {
+    static let shared = StorytellerHandler()
+
+    private override init() {
         super.init()
         Storyteller.delegate = self
     }
