@@ -312,6 +312,15 @@ Storyteller.removeStoriesRowInline = function(successCallback, errorCallback) {
     return execPromise('removeStoriesRowInline', [], successCallback, errorCallback);
 };
 
+// Simple debug helper to verify Cordova wiring from JS/OutSystems
+// Usage in JS:
+//   Storyteller.debugPing()
+//     .then(function (msg) { console.log('debugPing OK:', msg); })
+//     .catch(function (err) { console.error('debugPing ERROR:', err); });
+Storyteller.debugPing = function(successCallback, errorCallback) {
+    return execPromise('debugPing', [], successCallback, errorCallback);
+};
+
 
 // COM ESTE CÓDIGO DÁ ERROS A GERAR A BUILD
 /*

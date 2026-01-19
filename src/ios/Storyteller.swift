@@ -50,6 +50,17 @@ class CDVStoryteller: CDVPlugin {
         }
     }
 
+    // MARK: - Debug helpers
+
+    /// Simple ping method to verify Cordova wiring from JS/OutSystems.
+    /// JS usage: Storyteller.debugPing().then(...)
+    @objc(debugPing:)
+    func debugPing(_ command: CDVInvokedUrlCommand) {
+        let message = "Storyteller iOS plugin is reachable (debugPing)."
+        let pluginResult = CDVPluginResult(status: .ok, messageAs: message)
+        self.commandDelegate.send(pluginResult, callbackId: command.callbackId)
+    }
+
     // MARK: - Show Full Native View
     @objc(showStorytellerView:)
     func showStorytellerView(_ command: CDVInvokedUrlCommand) {
