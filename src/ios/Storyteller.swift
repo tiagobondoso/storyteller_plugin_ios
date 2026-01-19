@@ -24,6 +24,23 @@ class CDVStoryteller: CDVPlugin {
     /// Generic events callback id (JS listener) used for test events and later for analytics.
     private var genericEventsCallbackId: String?
 
+    // MARK: - Cordova lifecycle
+
+    override func pluginInitialize() {
+        super.pluginInitialize()
+
+        NotificationCenter.default.addObserver(
+            self,
+            selector: #selector(handleStorytellerGenericEvent(_:)),
+            name: Notification.Name("StorytellerGenericEvent"),
+            object: nil
+        )
+    }
+
+    deinit {
+        NotificationCenter.default.removeObserver(self)
+    }
+
     // MARK: - Initialize SDK
     @objc(initializeSDK:)
     func initializeSDK(_ command: CDVInvokedUrlCommand) {
@@ -101,6 +118,13 @@ class CDVStoryteller: CDVPlugin {
             result.setKeepCallbackAs(true)
             self.commandDelegate.send(result, callbackId: callbackId)
         }
+    }
+
+    /// Handles notifications from StorytellerHandler and forwards them to JS.
+    @objc
+    func handleStorytellerGenericEvent(_ notification: Notification) {
+        guard let payload = notification.userInfo as? [String: Any] else { return }
+        sendGenericEventToJS(payload: payload)
     }
 
     // MARK: - Debug helpers

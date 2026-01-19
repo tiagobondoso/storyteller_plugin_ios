@@ -37,4 +37,59 @@ class StorytellerHandler: NSObject, StorytellerDelegate, StorytellerListViewDele
         }
     }
 
+    // MARK: - User Activity Analytics (Trivia Quizzes)
+
+    func onUserActivityOccurred(type: StorytellerSDK.UserActivity.EventType,
+                                data: StorytellerSDK.UserActivityData) {
+        switch type {
+        case .TriviaQuizQuestionAnswered:
+            handleTriviaQuestionAnswered(data: data)
+        case .TriviaQuizCompleted:
+            handleTriviaQuizCompleted(data: data)
+        default:
+            break
+        }
+    }
+
+    private func handleTriviaQuestionAnswered(data: StorytellerSDK.UserActivityData) {
+        let userId = Storyteller.currentUserId ?? ""
+
+        let payload: [String: Any] = [
+            "eventType": "TriviaQuizQuestionAnswered",
+            "userId": userId,
+            "quizId": data.triviaQuizId ?? "",
+            "quizTitle": data.triviaQuizTitle ?? "",
+            "questionId": data.triviaQuizQuestionId ?? "",
+            "answerId": data.triviaQuizAnswerId ?? "",
+            "storyId": data.storyId ?? "",
+            "pageId": data.pageId ?? ""
+        ]
+
+        forwardEventToCordova(payload: payload)
+    }
+
+    private func handleTriviaQuizCompleted(data: StorytellerSDK.UserActivityData) {
+        let userId = Storyteller.currentUserId ?? ""
+
+        let payload: [String: Any] = [
+            "eventType": "TriviaQuizCompleted",
+            "userId": userId,
+            "quizId": data.triviaQuizId ?? "",
+            "quizTitle": data.triviaQuizTitle ?? "",
+            "score": data.triviaQuizScore ?? 0,
+            "storyId": data.storyId ?? "",
+            "pageId": data.pageId ?? ""
+        ]
+
+        forwardEventToCordova(payload: payload)
+    }
+
+    private func forwardEventToCordova(payload: [String: Any]) {
+        NotificationCenter.default.post(
+            name: Notification.Name("StorytellerGenericEvent"),
+            object: nil,
+            userInfo: payload
+        )
+    }
+
 }
