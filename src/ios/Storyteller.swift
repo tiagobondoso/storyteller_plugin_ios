@@ -93,24 +93,6 @@ class CDVStoryteller: CDVPlugin {
             result.setKeepCallbackAs(true)
             self.commandDelegate.send(result, callbackId: command.callbackId)
         }
-
-        // Fire a couple of test events with a delay so the JS side can verify
-        // that multiple callbacks are received over the same registration.
-        DispatchQueue.main.asyncAfter(deadline: .now() + 2.0) {
-            self.sendGenericEventToJS(payload: [
-                "type": "test",
-                "value": 1,
-                "timestamp": Date().timeIntervalSince1970
-            ])
-        }
-
-        DispatchQueue.main.asyncAfter(deadline: .now() + 4.0) {
-            self.sendGenericEventToJS(payload: [
-                "type": "test",
-                "value": 2,
-                "timestamp": Date().timeIntervalSince1970
-            ])
-        }
     }
 
     /// Sends a generic event payload to JS if a listener is registered.
