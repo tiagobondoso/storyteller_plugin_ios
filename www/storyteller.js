@@ -312,8 +312,8 @@ Storyteller.removeStoriesRowInline = function(successCallback, errorCallback) {
     return execPromise('removeStoriesRowInline', [], successCallback, errorCallback);
 };
 
-// Generic events listener (can receive any event forwarded by the native plugin).
-// Usage (OutSystems / JS):
+// Generic events listener (test channel for validating keepCallback)
+// Usage:
 //   Storyteller.setEventListener(function (event) { ... }, function (err) { ... });
 // The success callback will be called multiple times as native pushes events.
 var _genericEventListener = null;
@@ -327,7 +327,6 @@ Storyteller.setEventListener = function(callback, errorCallback) {
 
     _genericEventListener = callback;
 
-    // Primeiro, regista o listener no native.
     return execPromise(
         'setEventListener',
         [],
@@ -341,86 +340,7 @@ Storyteller.setEventListener = function(callback, errorCallback) {
             }
         },
         errorCallback
-    ).then(function (res) {
-        // Depois de o native ter registado o callback, enviamos alguns
-        // eventos "de teste" puramente em JS, para ajudar na depuração
-        // do lado do OutSystems.
-        if (typeof _genericEventListener === 'function') {
-            try {
-                _genericEventListener({
-                    eventType: 'TestListenerRegistered',
-                    message: 'Listener registado com sucesso em JS',
-                    timestamp: Date.now()
-                });
-
-                setTimeout(function () {
-                    if (typeof _genericEventListener === 'function') {
-                        _genericEventListener({
-                            eventType: 'TestEvent',
-                            index: 1,
-                            message: 'Evento de teste #1 gerado em JS',
-                            timestamp: Date.now()
-                        });
-                    }
-                }, 500);
-
-                setTimeout(function () {
-                    if (typeof _genericEventListener === 'function') {
-                        _genericEventListener({
-                            eventType: 'TestEvent',
-                            index: 2,
-                            message: 'Evento de teste #2 gerado em JS',
-                            timestamp: Date.now()
-                        });
-                    }
-                }, 1000);
-            } catch (e) {
-                console.error('Error while sending JS test events', e);
-            }
-        }
-
-        return res;
-    });
-};
-
-// Convenience helper focused only on trivia events.
-// It usa o canal genérico por baixo mas só encaminha eventos de trivia
-// (por exemplo, eventType = "TriviaQuizQuestionAnswered" ou "TriviaQuizCompleted").
-// Uso sugerido em OutSystems:
-//   Storyteller.setTriviaEventListener(function (evt) {
-//       // evt.eventType, evt.userId, evt.quizId, evt.quizTitle,
-//       // evt.questionId, evt.answerId, evt.score, evt.storyId, evt.pageId
-//   }, function (err) { ... });
-var _triviaEventListener = null;
-
-Storyteller.setTriviaEventListener = function(callback, errorCallback) {
-    if (typeof callback !== 'function') {
-        var err = 'Callback function is required';
-        if (typeof errorCallback === 'function') errorCallback(err);
-        return Promise.reject(err);
-    }
-
-    _triviaEventListener = callback;
-
-    // Regista internamente o listener genérico apenas uma vez.
-    // Mesmo que chames várias vezes, só interessa a última função em _triviaEventListener.
-    return Storyteller.setEventListener(function(event) {
-        if (!event || typeof event !== 'object') return;
-
-        var type = event.eventType || event.sdkEventType;
-        if (type !== 'TriviaQuizQuestionAnswered' && type !== 'TriviaQuizCompleted') {
-            // Ignora eventos que não são de trivia
-            return;
-        }
-
-        if (typeof _triviaEventListener === 'function') {
-            try {
-                _triviaEventListener(event);
-            } catch (e) {
-                console.error('Error in trivia event listener', e);
-            }
-        }
-    }, errorCallback);
+    );
 };
 
 // Simple debug helper to verify Cordova wiring from JS/OutSystems
