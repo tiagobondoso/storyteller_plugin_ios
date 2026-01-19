@@ -81,31 +81,10 @@ class CDVStoryteller: CDVPlugin {
         // Store callback id so we can push events later.
         genericEventsCallbackId = command.callbackId
 
-        // Immediately acknowledge registration and keep callback alive.
-        if let result = CDVPluginResult(status: .ok, messageAs: [
-            "type": "listener_registered",
-            "message": "Generic event listener registered"
-        ]) {
+        // Keep callback alive for future events from StorytellerHandler.
+        if let result = CDVPluginResult(status: .noResult) {
             result.setKeepCallbackAs(true)
             self.commandDelegate.send(result, callbackId: command.callbackId)
-        }
-
-        // Fire a couple of test events with a delay so the JS side can verify
-        // that multiple callbacks are received over the same registration.
-        DispatchQueue.main.asyncAfter(deadline: .now() + 2.0) {
-            self.sendGenericEventToJS(payload: [
-                "type": "test",
-                "value": 1,
-                "timestamp": Date().timeIntervalSince1970
-            ])
-        }
-
-        DispatchQueue.main.asyncAfter(deadline: .now() + 4.0) {
-            self.sendGenericEventToJS(payload: [
-                "type": "test",
-                "value": 2,
-                "timestamp": Date().timeIntervalSince1970
-            ])
         }
     }
 
