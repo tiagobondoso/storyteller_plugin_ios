@@ -312,6 +312,37 @@ Storyteller.removeStoriesRowInline = function(successCallback, errorCallback) {
     return execPromise('removeStoriesRowInline', [], successCallback, errorCallback);
 };
 
+// Generic events listener (test channel for validating keepCallback)
+// Usage:
+//   Storyteller.setEventListener(function (event) { ... }, function (err) { ... });
+// The success callback will be called multiple times as native pushes events.
+var _genericEventListener = null;
+
+Storyteller.setEventListener = function(callback, errorCallback) {
+    if (typeof callback !== 'function') {
+        var err = 'Callback function is required';
+        if (typeof errorCallback === 'function') errorCallback(err);
+        return Promise.reject(err);
+    }
+
+    _genericEventListener = callback;
+
+    return execPromise(
+        'setEventListener',
+        [],
+        function(event) {
+            if (typeof _genericEventListener === 'function') {
+                try {
+                    _genericEventListener(event);
+                } catch (e) {
+                    console.error('Error in generic event listener', e);
+                }
+            }
+        },
+        errorCallback
+    );
+};
+
 // Simple debug helper to verify Cordova wiring from JS/OutSystems
 // Usage in JS:
 //   Storyteller.debugPing()

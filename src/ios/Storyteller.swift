@@ -7,6 +7,8 @@ import StorytellerSDK
 
 @objc(CDVStoryteller)
 class CDVStoryteller: CDVPlugin {
+    // MARK: - State
+
     private var inlineStoriesRowContainer: UIView?
     private var inlineStoriesRowView: StorytellerStoriesRowView?
     private var inlineTopConstraint: NSLayoutConstraint?
@@ -18,6 +20,9 @@ class CDVStoryteller: CDVPlugin {
     private weak var inlineScrollView: UIScrollView?
     private var inlineDocumentFrame: CGRect?
     private var currentInlineLayout: InlineLayoutOptions?
+
+    /// Generic events callback id (JS listener) used for test events and later for analytics.
+    private var genericEventsCallbackId: String?
 
     // MARK: - Initialize SDK
     @objc(initializeSDK:)
@@ -47,6 +52,54 @@ class CDVStoryteller: CDVPlugin {
                 let result = CDVPluginResult(status: .error, messageAs: error.localizedDescription)
                 self.commandDelegate.send(result, callbackId: command.callbackId)
             }
+        }
+    }
+
+    // MARK: - Generic Events Listener (test)
+
+    /// Registers a long-lived JS listener for generic events.
+    /// JS usage: Storyteller.setEventListener(function (event) { ... })
+    @objc(setEventListener:)
+    func setEventListener(_ command: CDVInvokedUrlCommand) {
+        // Store callback id so we can push events later.
+        genericEventsCallbackId = command.callbackId
+
+        // Immediately acknowledge registration and keep callback alive.
+        if let result = CDVPluginResult(status: .ok, messageAs: [
+            "type": "listener_registered",
+            "message": "Generic event listener registered"
+        ]) {
+            result.setKeepCallbackAs(true)
+            self.commandDelegate.send(result, callbackId: command.callbackId)
+        }
+
+        // Fire a couple of test events with a delay so the JS side can verify
+        // that multiple callbacks are received over the same registration.
+        DispatchQueue.main.asyncAfter(deadline: .now() + 2.0) {
+            self.sendGenericEventToJS(payload: [
+                "type": "test",
+                "value": 1,
+                "timestamp": Date().timeIntervalSince1970
+            ])
+        }
+
+        DispatchQueue.main.asyncAfter(deadline: .now() + 4.0) {
+            self.sendGenericEventToJS(payload: [
+                "type": "test",
+                "value": 2,
+                "timestamp": Date().timeIntervalSince1970
+            ])
+        }
+    }
+
+    /// Sends a generic event payload to JS if a listener is registered.
+    @objc
+    func sendGenericEventToJS(payload: [String: Any]) {
+        guard let callbackId = genericEventsCallbackId else { return }
+
+        if let result = CDVPluginResult(status: .ok, messageAs: payload) {
+            result.setKeepCallbackAs(true)
+            self.commandDelegate.send(result, callbackId: callbackId)
         }
     }
 
