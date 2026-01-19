@@ -327,6 +327,7 @@ Storyteller.setEventListener = function(callback, errorCallback) {
 
     _genericEventListener = callback;
 
+    // Primeiro, regista o listener no native.
     return execPromise(
         'setEventListener',
         [],
@@ -340,7 +341,46 @@ Storyteller.setEventListener = function(callback, errorCallback) {
             }
         },
         errorCallback
-    );
+    ).then(function (res) {
+        // Depois de o native ter registado o callback, enviamos alguns
+        // eventos "de teste" puramente em JS, para ajudar na depuração
+        // do lado do OutSystems.
+        if (typeof _genericEventListener === 'function') {
+            try {
+                _genericEventListener({
+                    eventType: 'TestListenerRegistered',
+                    message: 'Listener registado com sucesso em JS',
+                    timestamp: Date.now()
+                });
+
+                setTimeout(function () {
+                    if (typeof _genericEventListener === 'function') {
+                        _genericEventListener({
+                            eventType: 'TestEvent',
+                            index: 1,
+                            message: 'Evento de teste #1 gerado em JS',
+                            timestamp: Date.now()
+                        });
+                    }
+                }, 500);
+
+                setTimeout(function () {
+                    if (typeof _genericEventListener === 'function') {
+                        _genericEventListener({
+                            eventType: 'TestEvent',
+                            index: 2,
+                            message: 'Evento de teste #2 gerado em JS',
+                            timestamp: Date.now()
+                        });
+                    }
+                }, 1000);
+            } catch (e) {
+                console.error('Error while sending JS test events', e);
+            }
+        }
+
+        return res;
+    });
 };
 
 // Convenience helper focused only on trivia events.
