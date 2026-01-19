@@ -343,6 +343,12 @@ Storyteller.setEventListener = function(callback, errorCallback) {
     );
 };
 
+// Clear the generic event listener so no more events are handled on the JS side.
+// Useful on logout or when leaving a screen where you no longer care about events.
+Storyteller.clearEventListener = function() {
+    _genericEventListener = null;
+};
+
 // Simple debug helper to verify Cordova wiring from JS/OutSystems
 // Usage in JS:
 //   Storyteller.debugPing()
