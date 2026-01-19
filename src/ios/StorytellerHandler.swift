@@ -41,6 +41,23 @@ class StorytellerHandler: NSObject, StorytellerDelegate, StorytellerListViewDele
 
     func onUserActivityOccurred(type: StorytellerSDK.UserActivity.EventType,
                                 data: StorytellerSDK.UserActivityData) {
+        // For debugging and inspection from JS/OutSystems, forward ALL
+        // user activity events through the generic event channel.
+
+        let basePayload: [String: Any] = [
+            "sdkEventType": String(describing: type),
+            "storyId": data.storyId ?? "",
+            "pageId": data.pageId ?? "",
+            "quizId": data.triviaQuizId ?? "",
+            "quizTitle": data.triviaQuizTitle ?? "",
+            "questionId": data.triviaQuizQuestionId ?? "",
+            "answerId": data.triviaQuizAnswerId ?? "",
+            "score": data.triviaQuizScore ?? 0
+        ]
+
+        forwardEventToCordova(payload: basePayload)
+
+        // Additionally, keep the more semantic trivia-specific events for convenience.
         switch type {
         case .TriviaQuizQuestionAnswered:
             handleTriviaQuestionAnswered(data: data)
