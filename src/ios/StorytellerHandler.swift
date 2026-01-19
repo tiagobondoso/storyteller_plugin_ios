@@ -8,6 +8,16 @@ class StorytellerHandler: NSObject, StorytellerDelegate, StorytellerListViewDele
     private override init() {
         super.init()
         Storyteller.delegate = self
+
+        // Emit a debug event so JS can confirm handler initialization and delegate registration
+        NotificationCenter.default.post(
+            name: Notification.Name("StorytellerGenericEvent"),
+            object: nil,
+            userInfo: [
+                "type": "native_debug",
+                "message": "StorytellerHandler initialized and delegate set"
+            ]
+        )
     }
     
     func onPlayerPresented() {
@@ -44,9 +54,11 @@ class StorytellerHandler: NSObject, StorytellerDelegate, StorytellerListViewDele
         // Forward ALL user activity events to JS, with minimal shaping so you
         // can inspect them on the OutSystems side.
 
-        var payload: [String: Any] = [:]
+    var payload: [String: Any] = [:]
 
-        payload["sdkEventType"] = String(describing: type)
+    // Tag as a raw user-activity event coming from the SDK
+    payload["type"] = "user_activity_raw"
+    payload["sdkEventType"] = String(describing: type)
 
         // Basic story/page identifiers
         if let storyId = data.storyId { payload["storyId"] = storyId }

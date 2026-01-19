@@ -62,6 +62,10 @@ class CDVStoryteller: CDVPlugin {
             do {
                 try await Storyteller.initialize(apiKey: apiKey, userInput: userInput)
                 print("Storyteller SDK initialized for user: \(userId)")
+
+                // Ensure StorytellerHandler is instantiated so it can register as delegate
+                _ = StorytellerHandler.shared
+
                 let result = CDVPluginResult(status: .ok, messageAs: "Storyteller SDK initialized for user: \(userId)")
                 self.commandDelegate.send(result, callbackId: command.callbackId)
             } catch {
