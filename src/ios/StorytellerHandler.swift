@@ -37,66 +37,27 @@ class StorytellerHandler: NSObject, StorytellerDelegate, StorytellerListViewDele
         }
     }
 
-    // MARK: - User Activity Analytics (Trivia Quizzes)
+    // MARK: - User Activity Analytics (forward everything)
 
     func onUserActivityOccurred(type: StorytellerSDK.UserActivity.EventType,
                                 data: StorytellerSDK.UserActivityData) {
-        // For debugging and inspection from JS/OutSystems, forward ALL
-        // user activity events through the generic event channel.
+        // Forward ALL user activity events to JS, with minimal shaping so you
+        // can inspect them on the OutSystems side.
 
-        let basePayload: [String: Any] = [
-            "sdkEventType": String(describing: type),
-            "storyId": data.storyId ?? "",
-            "pageId": data.pageId ?? "",
-            "quizId": data.triviaQuizId ?? "",
-            "quizTitle": data.triviaQuizTitle ?? "",
-            "questionId": data.triviaQuizQuestionId ?? "",
-            "answerId": data.triviaQuizAnswerId ?? "",
-            "score": data.triviaQuizScore ?? 0
-        ]
+        var payload: [String: Any] = [:]
 
-        forwardEventToCordova(payload: basePayload)
+        payload["sdkEventType"] = String(describing: type)
 
-        // Additionally, keep the more semantic trivia-specific events for convenience.
-        switch type {
-        case .TriviaQuizQuestionAnswered:
-            handleTriviaQuestionAnswered(data: data)
-        case .TriviaQuizCompleted:
-            handleTriviaQuizCompleted(data: data)
-        default:
-            break
-        }
-    }
+        // Basic story/page identifiers
+        if let storyId = data.storyId { payload["storyId"] = storyId }
+        if let pageId = data.pageId { payload["pageId"] = pageId }
 
-    private func handleTriviaQuestionAnswered(data: StorytellerSDK.UserActivityData) {
-        let userId = Storyteller.currentUserId ?? ""
-
-        let payload: [String: Any] = [
-            "eventType": "TriviaQuizQuestionAnswered",
-            "userId": userId,
-            "quizId": data.triviaQuizId ?? "",
-            "quizTitle": data.triviaQuizTitle ?? "",
-            "questionId": data.triviaQuizQuestionId ?? "",
-            "answerId": data.triviaQuizAnswerId ?? "",
-            "storyId": data.storyId ?? "",
-            "pageId": data.pageId ?? ""
-        ]
-
-        forwardEventToCordova(payload: payload)
-    }
-
-    private func handleTriviaQuizCompleted(data: StorytellerSDK.UserActivityData) {
-        let userId = Storyteller.currentUserId ?? ""
-
-        let payload: [String: Any] = [
-            "eventType": "TriviaQuizCompleted",
-            "userId": userId,
-            "quizId": data.triviaQuizId ?? "",
-            "quizTitle": data.triviaQuizTitle ?? "",
-            "score": data.triviaQuizScore ?? 0,
-            "storyId": data.storyId ?? "",
-            "pageId": data.pageId ?? ""
-        ]
+        // Trivia-related fields (may be nil for non-trivia events)
+        if let quizId = data.triviaQuizId { payload["quizId"] = quizId }
+        if let quizTitle = data.triviaQuizTitle { payload["quizTitle"] = quizTitle }
+        if let questionId = data.triviaQuizQuestionId { payload["questionId"] = questionId }
+        if let answerId = data.triviaQuizAnswerId { payload["answerId"] = answerId }
+        if let score = data.triviaQuizScore { payload["score"] = score }
 
         forwardEventToCordova(payload: payload)
     }
