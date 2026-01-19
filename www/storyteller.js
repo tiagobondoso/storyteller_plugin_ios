@@ -312,46 +312,6 @@ Storyteller.removeStoriesRowInline = function(successCallback, errorCallback) {
     return execPromise('removeStoriesRowInline', [], successCallback, errorCallback);
 };
 
-// Trivia quiz events (client-side only, no server)
-// Usage:
-//   Storyteller.setTriviaEventListener(function (event) { ... });
-// "event" is an object like:
-//   {
-//     eventType: 'TriviaQuizQuestionAnswered' | 'TriviaQuizCompleted',
-//     userId: string,
-//     quizId: string,
-//     quizTitle: string,
-//     questionId?: string,
-//     answerId?: string,
-//     score?: number,
-//     storyId?: string,
-//     pageId?: string
-//   }
-
-var _triviaEventListener = null;
-
-Storyteller.setTriviaEventListener = function(callback, errorCallback) {
-    if (typeof callback !== 'function') {
-        var err = 'Callback function is required';
-        if (typeof errorCallback === 'function') errorCallback(err);
-        return Promise.reject(err);
-    }
-
-    _triviaEventListener = callback;
-
-    // Register with native side. The success callback will be invoked
-    // every time the native plugin pushes an event using keepCallback.
-    return execPromise('setTriviaEventListener', [], function(event) {
-        if (typeof _triviaEventListener === 'function') {
-            try {
-                _triviaEventListener(event);
-            } catch (e) {
-                console.error('Error in trivia event listener', e);
-            }
-        }
-    }, errorCallback);
-};
-
 
 // COM ESTE CÓDIGO DÁ ERROS A GERAR A BUILD
 /*

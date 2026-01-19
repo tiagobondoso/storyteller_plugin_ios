@@ -7,11 +7,6 @@ import StorytellerSDK
 
 @objc(CDVStoryteller)
 class CDVStoryteller: CDVPlugin {
-
-    // MARK: - Trivia events callback (JS listener)
-    /// Cordova callback id for streaming trivia events back to JavaScript.
-    private var triviaEventsCallbackId: String?
-
     private var inlineStoriesRowContainer: UIView?
     private var inlineStoriesRowView: StorytellerStoriesRowView?
     private var inlineTopConstraint: NSLayoutConstraint?
@@ -52,38 +47,6 @@ class CDVStoryteller: CDVPlugin {
                 let result = CDVPluginResult(status: .error, messageAs: error.localizedDescription)
                 self.commandDelegate.send(result, callbackId: command.callbackId)
             }
-        }
-    }
-
-    // MARK: - Trivia Events Listener (JS-side)
-
-    /// JS usage: setTriviaEventListener(callback)
-    /// Keeps the callback open and streams trivia events as they occur.
-    @objc(setTriviaEventListener:)
-    func setTriviaEventListener(_ command: CDVInvokedUrlCommand) {
-        // Store callback id so native can push events later.
-        triviaEventsCallbackId = command.callbackId
-
-        // Attach this plugin instance to the handler so it can forward events.
-        StorytellerHandler.shared.triviaEventsSink = self
-
-        // Immediately acknowledge registration and keep callback alive.
-        let pluginResult = CDVPluginResult(status: .ok, messageAs: "Trivia event listener registered")
-        pluginResult?.setKeepCallbackAs(true)
-        self.commandDelegate.send(pluginResult, callbackId: command.callbackId)
-    }
-
-    /// Called by StorytellerHandler when a trivia event occurs.
-    /// Sends the event payload to JS if a listener is registered.
-    @objc
-    func sendTriviaEventToJS(_ payload: [String: Any]) {
-        guard let callbackId = triviaEventsCallbackId else {
-            return
-        }
-
-        if let result = CDVPluginResult(status: .ok, messageAs: payload) {
-            result.setKeepCallbackAs(true)
-            self.commandDelegate.send(result, callbackId: callbackId)
         }
     }
 

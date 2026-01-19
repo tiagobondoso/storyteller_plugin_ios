@@ -5,9 +5,6 @@ import StorytellerSDK
 class StorytellerHandler: NSObject, StorytellerDelegate, StorytellerListViewDelegate {
     static let shared = StorytellerHandler()
 
-    /// Weak reference back to the Cordova plugin so we can stream trivia events to JS.
-    weak var triviaEventsSink: CDVStoryteller?
-
     private override init() {
         super.init()
         Storyteller.delegate = self
@@ -40,48 +37,4 @@ class StorytellerHandler: NSObject, StorytellerDelegate, StorytellerListViewDele
         }
     }
 
-    // MARK: - User Activity Analytics (Trivia Quizzes POC)
-
-    func onUserActivityOccurred(type: StorytellerSDK.UserActivity.EventType,
-                                data: StorytellerSDK.UserActivityData) {
-        switch type {
-        case .TriviaQuizQuestionAnswered:
-            logTriviaQuestionAnswered(data: data)
-        case .TriviaQuizCompleted:
-            logTriviaQuizCompleted(data: data)
-        default:
-            break
-        }
-    }
-
-    private func logTriviaQuestionAnswered(data: StorytellerSDK.UserActivityData) {
-        let userId = Storyteller.currentUserId ?? ""
-        let payload: [String: Any] = [
-            "eventType": "TriviaQuizQuestionAnswered",
-            "userId": userId,
-            "quizId": data.triviaQuizId ?? "",
-            "quizTitle": data.triviaQuizTitle ?? "",
-            "questionId": data.triviaQuizQuestionId ?? "",
-            "answerId": data.triviaQuizAnswerId ?? "",
-            "storyId": data.storyId ?? "",
-            "pageId": data.pageId ?? ""
-        ]
-
-        triviaEventsSink?.sendTriviaEventToJS(payload)
-    }
-
-    private func logTriviaQuizCompleted(data: StorytellerSDK.UserActivityData) {
-        let userId = Storyteller.currentUserId ?? ""
-        let payload: [String: Any] = [
-            "eventType": "TriviaQuizCompleted",
-            "userId": userId,
-            "quizId": data.triviaQuizId ?? "",
-            "quizTitle": data.triviaQuizTitle ?? "",
-            "score": data.triviaQuizScore ?? 0,
-            "storyId": data.storyId ?? "",
-            "pageId": data.pageId ?? ""
-        ]
-
-        triviaEventsSink?.sendTriviaEventToJS(payload)
-    }
 }
