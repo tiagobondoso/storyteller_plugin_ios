@@ -12,6 +12,7 @@ final class StoriesRowViewController: UIViewController {
 
     private let configuration: StorytellerStoriesListConfiguration
     private var storiesRowView: StorytellerStoriesRowView?
+    private let closeButtonSize: CGFloat = 32
 
     init(configuration: StorytellerStoriesListConfiguration) {
         self.configuration = configuration
@@ -49,6 +50,49 @@ final class StoriesRowViewController: UIViewController {
 
         storiesRowView.reloadData()
         self.storiesRowView = storiesRowView
+
+        addCloseButton()
+    }
+
+    private func addCloseButton() {
+        let button = UIButton(type: .system)
+        button.translatesAutoresizingMaskIntoConstraints = false
+
+        // Use a simple "xmark" if SF Symbols are available; otherwise, fallback to text.
+        if #available(iOS 13.0, *) {
+            let image = UIImage(systemName: "xmark")
+            button.setImage(image, for: .normal)
+        } else {
+            button.setTitle("Close", for: .normal)
+        }
+
+        button.tintColor = .label
+        button.addTarget(self, action: #selector(closeTapped), for: .touchUpInside)
+
+        view.addSubview(button)
+
+        let topAnchor: NSLayoutYAxisAnchor
+        let leadingAnchor: NSLayoutXAxisAnchor
+
+        if #available(iOS 11.0, *) {
+            topAnchor = view.safeAreaLayoutGuide.topAnchor
+            leadingAnchor = view.safeAreaLayoutGuide.leadingAnchor
+        } else {
+            topAnchor = topLayoutGuide.bottomAnchor
+            leadingAnchor = view.leadingAnchor
+        }
+
+        NSLayoutConstraint.activate([
+            button.topAnchor.constraint(equalTo: topAnchor, constant: 12),
+            button.leadingAnchor.constraint(equalTo: leadingAnchor, constant: 16),
+            button.widthAnchor.constraint(equalToConstant: closeButtonSize),
+            button.heightAnchor.constraint(equalToConstant: closeButtonSize)
+        ])
+    }
+
+    @objc
+    private func closeTapped() {
+        dismiss(animated: true, completion: nil)
     }
 }
 
