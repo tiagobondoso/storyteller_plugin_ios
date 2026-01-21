@@ -3,13 +3,17 @@ import UIKit
 import StorytellerSDK
 
 class StorytellerHandler: NSObject, StorytellerDelegate, StorytellerListViewDelegate {
+    // Singleton used across the plugin to register Storyteller delegates once
     static let shared = StorytellerHandler()
 
     private override init() {
-        super.init()
-        Storyteller.delegate = self
+    super.init()
 
-        // Emit a debug event so JS can confirm handler initialization and delegate registration
+    // Register this handler as the global Storyteller delegate so we receive
+    // player events and user activity callbacks from the native SDK.
+    Storyteller.delegate = self
+
+    // Emit a debug event so JS can confirm handler initialization and delegate registration
         NotificationCenter.default.post(
             name: Notification.Name("StorytellerGenericEvent"),
             object: nil,
@@ -51,26 +55,29 @@ class StorytellerHandler: NSObject, StorytellerDelegate, StorytellerListViewDele
 
     func onUserActivityOccurred(type: StorytellerSDK.UserActivity.EventType,
                                 data: StorytellerSDK.UserActivityData) {
-        // Forward ALL user activity events to JS, using field names that
-        // mirror the Storyteller documentation so OutSystems can map 1:1.
+        // Called by Storyteller SDK whenever a user-activity event occurs
+        // (e.g. story opened, trivia quiz answered, poll answered, share, etc.).
+        // We translate the strongly-typed Swift object into a flat JSON-friendly
+        // dictionary and forward it to the Cordova layer so JS / OutSystems
+        // can process or persist the analytics on the client.
         var payload: [String: Any] = [:]
 
-        // Required base fields
+    // Required base fields shared across all events
         payload["type"] = "user_activity_raw"
         payload["sdkEventType"] = String(describing: type)
 
-        // Story / page identifiers
+    // Story / page identifiers – minimal core identifiers used for joins
         if let storyId = data.storyId { payload["storyId"] = storyId }
         if let pageId = data.pageId { payload["pageId"] = pageId }
 
-        // Trivia-related (documentation-style names)
+    // Trivia-related (documentation-style names from official Storyteller docs)
         if let triviaQuizId = data.triviaQuizId { payload["triviaQuizId"] = triviaQuizId }
         if let triviaQuizTitle = data.triviaQuizTitle { payload["triviaQuizTitle"] = triviaQuizTitle }
         if let triviaQuizQuestionId = data.triviaQuizQuestionId { payload["triviaQuizQuestionId"] = triviaQuizQuestionId }
         if let triviaQuizAnswerId = data.triviaQuizAnswerId { payload["triviaQuizAnswerId"] = triviaQuizAnswerId }
         if let triviaQuizScore = data.triviaQuizScore { payload["triviaQuizScore"] = triviaQuizScore }
 
-        // Categories / categoryDetails - best-effort mapping from SDK data
+    // Categories / categoryDetails - best-effort mapping from SDK data
         // "categories" can be a simple identifier or array, depending on what SDK exposes
         if let categoryId = data.categoryId {
             // Expose a single category id both as a scalar and inside an array
@@ -86,7 +93,7 @@ class StorytellerHandler: NSObject, StorytellerDelegate, StorytellerListViewDele
             payload["categoryDetails"] = categoryDetails
         }
 
-        // storyIndex (position within a list/row) if SDK provides it
+    // storyIndex (position within a list/row) if SDK provides it
         if let storyIndex = data.storyIndex {
             payload["storyIndex"] = storyIndex
         } else if let pageIndex = data.pageIndex {
@@ -94,8 +101,8 @@ class StorytellerHandler: NSObject, StorytellerDelegate, StorytellerListViewDele
             payload["storyIndex"] = pageIndex
         }
 
-        // openedReason / actionText / shareMethod / pollAnswerId
-        // Map only if these properties exist on current SDK version.
+    // openedReason / actionText / shareMethod / pollAnswerId
+    // Additional context for why/how the story was opened or interacted with.
         if let openedReason = data.openedReason {
             payload["openedReason"] = openedReason
         }
@@ -113,6 +120,9 @@ class StorytellerHandler: NSObject, StorytellerDelegate, StorytellerListViewDele
     }
 
     private func forwardEventToCordova(payload: [String: Any]) {
+        // Bridge from native (delegate) to Cordova plugin using NotificationCenter.
+        // CDVStoryteller listens for the "StorytellerGenericEvent" notification,
+        // picks up the payload and pushes it to the long-lived JS callback.
         NotificationCenter.default.post(
             name: Notification.Name("StorytellerGenericEvent"),
             object: nil,
