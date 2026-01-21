@@ -1,5 +1,6 @@
 
-// StorytellerPlugin.swift
+// Storyteller.swift
+// Main Cordova plugin entry point (CDVStoryteller) and core helpers
 import Foundation
 import UIKit
 import WebKit
@@ -161,6 +162,116 @@ class CDVStoryteller: CDVPlugin {
                 self.commandDelegate.send(result, callbackId: command.callbackId)
             } catch {
                 print("openStory error: \(error)")
+                let result = CDVPluginResult(status: .error, messageAs: error.localizedDescription)
+                self.commandDelegate.send(result, callbackId: command.callbackId)
+            }
+        }
+    }
+
+    // MARK: - Open Player helpers (categories, pages, clips)
+
+    // JS usage: openCategory(categoryId)
+    @objc(openCategory:)
+    func openCategory(_ command: CDVInvokedUrlCommand) {
+        guard let category = command.argument(at: 0) as? String, !category.isEmpty else {
+            let pluginResult = CDVPluginResult(status: .error, messageAs: "Category id is missing.")
+            self.commandDelegate.send(pluginResult, callbackId: command.callbackId)
+            return
+        }
+
+        Task { @MainActor in
+            do {
+                try await Storyteller.openCategory(category: category)
+                let result = CDVPluginResult(status: .ok, messageAs: "Category opened: \(category)")
+                self.commandDelegate.send(result, callbackId: command.callbackId)
+            } catch {
+                let result = CDVPluginResult(status: .error, messageAs: error.localizedDescription)
+                self.commandDelegate.send(result, callbackId: command.callbackId)
+            }
+        }
+    }
+
+    // JS usage: openPage(pageId)
+    @objc(openPage:)
+    func openPage(_ command: CDVInvokedUrlCommand) {
+        guard let pageId = command.argument(at: 0) as? String, !pageId.isEmpty else {
+            let pluginResult = CDVPluginResult(status: .error, messageAs: "Page id is missing.")
+            self.commandDelegate.send(pluginResult, callbackId: command.callbackId)
+            return
+        }
+
+        Task { @MainActor in
+            do {
+                try await Storyteller.openPage(id: pageId)
+                let result = CDVPluginResult(status: .ok, messageAs: "Page opened: \(pageId)")
+                self.commandDelegate.send(result, callbackId: command.callbackId)
+            } catch {
+                let result = CDVPluginResult(status: .error, messageAs: error.localizedDescription)
+                self.commandDelegate.send(result, callbackId: command.callbackId)
+            }
+        }
+    }
+
+    // JS usage: openCollection(configuration)
+    // configuration is passed as a dictionary and mapped to StorytellerClipCollectionConfiguration on the native side.
+    @objc(openCollection:)
+    func openCollection(_ command: CDVInvokedUrlCommand) {
+        guard let configDict = command.argument(at: 0) as? [String: Any] else {
+            let pluginResult = CDVPluginResult(status: .error, messageAs: "Configuration dictionary is missing.")
+            self.commandDelegate.send(pluginResult, callbackId: command.callbackId)
+            return
+        }
+
+        // Minimal mapping: expect at least collectionId; destination is optional.
+        guard let collectionId = configDict["collectionId"] as? String, !collectionId.isEmpty else {
+            let pluginResult = CDVPluginResult(status: .error, messageAs: "collectionId is required in configuration.")
+            self.commandDelegate.send(pluginResult, callbackId: command.callbackId)
+            return
+        }
+
+        Task { @MainActor in
+            do {
+                var configuration = StorytellerClipCollectionConfiguration(collectionId: collectionId)
+
+                if let destinationDict = configDict["destination"] as? [String: Any] {
+                    if let clipExternalId = destinationDict["clipExternalId"] as? String, !clipExternalId.isEmpty {
+                        configuration.destination = .clipExternalId(clipExternalId)
+                    } else if let categoryId = destinationDict["categoryId"] as? String, !categoryId.isEmpty {
+                        configuration.destination = .categoryId(categoryId)
+                    }
+                }
+
+                try await Storyteller.openCollection(configuration: configuration)
+                let result = CDVPluginResult(status: .ok, messageAs: "Collection opened: \(collectionId)")
+                self.commandDelegate.send(result, callbackId: command.callbackId)
+            } catch {
+                let result = CDVPluginResult(status: .error, messageAs: error.localizedDescription)
+                self.commandDelegate.send(result, callbackId: command.callbackId)
+            }
+        }
+    }
+
+    // JS usage: openClipByExternalId(collectionId, externalId)
+    @objc(openClipByExternalId:)
+    func openClipByExternalId(_ command: CDVInvokedUrlCommand) {
+        guard let collectionId = command.argument(at: 0) as? String, !collectionId.isEmpty else {
+            let pluginResult = CDVPluginResult(status: .error, messageAs: "collectionId is missing.")
+            self.commandDelegate.send(pluginResult, callbackId: command.callbackId)
+            return
+        }
+
+        guard let externalId = command.argument(at: 1) as? String, !externalId.isEmpty else {
+            let pluginResult = CDVPluginResult(status: .error, messageAs: "externalId is missing.")
+            self.commandDelegate.send(pluginResult, callbackId: command.callbackId)
+            return
+        }
+
+        Task { @MainActor in
+            do {
+                try await Storyteller.openClipByExternalId(collectionId: collectionId, externalId: externalId)
+                let result = CDVPluginResult(status: .ok, messageAs: "Clip opened: \(externalId) in collection: \(collectionId)")
+                self.commandDelegate.send(result, callbackId: command.callbackId)
+            } catch {
                 let result = CDVPluginResult(status: .error, messageAs: error.localizedDescription)
                 self.commandDelegate.send(result, callbackId: command.callbackId)
             }

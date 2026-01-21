@@ -1,3 +1,6 @@
+// Storyteller+User.swift
+// CDVStoryteller extension for user/profile related operations (locale, attributes, categories)
+
 import Foundation
 import StorytellerSDK
 

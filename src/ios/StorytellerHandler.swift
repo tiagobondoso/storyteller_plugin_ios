@@ -1,4 +1,5 @@
-//  StorytellerHandler.swift
+// StorytellerHandler.swift
+// Shared Storyteller SDK delegate used for analytics and list view callbacks
 import UIKit
 import StorytellerSDK
 

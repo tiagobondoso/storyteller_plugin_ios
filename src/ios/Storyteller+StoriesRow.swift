@@ -1,3 +1,6 @@
+// Storyteller+StoriesRow.swift
+// CDVStoryteller extension for Stories Row UI (modal and inline on top of the WebView)
+
 import Foundation
 import UIKit
 import StorytellerSDK

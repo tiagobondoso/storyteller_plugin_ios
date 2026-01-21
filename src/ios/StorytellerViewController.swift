@@ -1,4 +1,5 @@
-//  StorytellerViewController.swift
+// StorytellerViewController.swift
+// Simple full-screen demo controller showing multiple Storyteller components
 import UIKit
 import StorytellerSDK
 
