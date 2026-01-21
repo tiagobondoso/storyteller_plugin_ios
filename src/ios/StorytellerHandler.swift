@@ -51,25 +51,63 @@ class StorytellerHandler: NSObject, StorytellerDelegate, StorytellerListViewDele
 
     func onUserActivityOccurred(type: StorytellerSDK.UserActivity.EventType,
                                 data: StorytellerSDK.UserActivityData) {
-        // Forward ALL user activity events to JS, with minimal shaping so you
-        // can inspect them on the OutSystems side.
+        // Forward ALL user activity events to JS, using field names that
+        // mirror the Storyteller documentation so OutSystems can map 1:1.
+        var payload: [String: Any] = [:]
 
-    var payload: [String: Any] = [:]
+        // Required base fields
+        payload["type"] = "user_activity_raw"
+        payload["sdkEventType"] = String(describing: type)
 
-    // Tag as a raw user-activity event coming from the SDK
-    payload["type"] = "user_activity_raw"
-    payload["sdkEventType"] = String(describing: type)
-
-        // Basic story/page identifiers
+        // Story / page identifiers
         if let storyId = data.storyId { payload["storyId"] = storyId }
         if let pageId = data.pageId { payload["pageId"] = pageId }
 
-        // Trivia-related fields (may be nil for non-trivia events)
-        if let quizId = data.triviaQuizId { payload["quizId"] = quizId }
-        if let quizTitle = data.triviaQuizTitle { payload["quizTitle"] = quizTitle }
-        if let questionId = data.triviaQuizQuestionId { payload["questionId"] = questionId }
-        if let answerId = data.triviaQuizAnswerId { payload["answerId"] = answerId }
-        if let score = data.triviaQuizScore { payload["score"] = score }
+        // Trivia-related (documentation-style names)
+        if let triviaQuizId = data.triviaQuizId { payload["triviaQuizId"] = triviaQuizId }
+        if let triviaQuizTitle = data.triviaQuizTitle { payload["triviaQuizTitle"] = triviaQuizTitle }
+        if let triviaQuizQuestionId = data.triviaQuizQuestionId { payload["triviaQuizQuestionId"] = triviaQuizQuestionId }
+        if let triviaQuizAnswerId = data.triviaQuizAnswerId { payload["triviaQuizAnswerId"] = triviaQuizAnswerId }
+        if let triviaQuizScore = data.triviaQuizScore { payload["triviaQuizScore"] = triviaQuizScore }
+
+        // Categories / categoryDetails - best-effort mapping from SDK data
+        // "categories" can be a simple identifier or array, depending on what SDK exposes
+        if let categoryId = data.categoryId {
+            // Expose a single category id both as a scalar and inside an array
+            payload["categories"] = [categoryId]
+        }
+
+        // If SDK exposes richer category information, map it to "categoryDetails"
+        // (placeholder: only id/name if available on this version of the SDK)
+        var categoryDetails: [String: Any] = [:]
+        if let categoryId = data.categoryId { categoryDetails["id"] = categoryId }
+        if let categoryName = data.categoryName { categoryDetails["name"] = categoryName }
+        if !categoryDetails.isEmpty {
+            payload["categoryDetails"] = categoryDetails
+        }
+
+        // storyIndex (position within a list/row) if SDK provides it
+        if let storyIndex = data.storyIndex {
+            payload["storyIndex"] = storyIndex
+        } else if let pageIndex = data.pageIndex {
+            // Fallback: expose pageIndex as storyIndex if nothing better exists
+            payload["storyIndex"] = pageIndex
+        }
+
+        // openedReason / actionText / shareMethod / pollAnswerId
+        // Map only if these properties exist on current SDK version.
+        if let openedReason = data.openedReason {
+            payload["openedReason"] = openedReason
+        }
+        if let actionText = data.actionText {
+            payload["actionText"] = actionText
+        }
+        if let shareMethod = data.shareMethod {
+            payload["shareMethod"] = shareMethod
+        }
+        if let pollAnswerId = data.pollAnswerId {
+            payload["pollAnswerId"] = pollAnswerId
+        }
 
         forwardEventToCordova(payload: payload)
     }
