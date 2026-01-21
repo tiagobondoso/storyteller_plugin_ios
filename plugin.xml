@@ -15,7 +15,6 @@
     </js-module>
 
     <platform name="ios">
-        <preference name="SwiftVersion" value="5.0" />
         <config-file target="config.xml" parent="/*">
             <feature name="Storyteller">
                 <param name="ios-package" value="CDVStoryteller" />
@@ -26,9 +25,9 @@
         <source-file src="src/ios/StorytellerHandler.swift" />
         <source-file src="src/ios/StorytellerViewController.swift" />
         
-        <framework src="UIKit.framework" weak="true"/>
-        <framework src="Foundation.framework" weak="true"/>
-        <framework src="src/ios/StorytellerSDK.xcframework" custom="true" embed="true" link="true" />
+    <framework src="UIKit.framework" weak="true"/>
+    <framework src="Foundation.framework" weak="true"/>
+    <framework src="src/ios/StorytellerSDK.xcframework" custom="true" embed="true" link="true" />
 
     </platform>
     
