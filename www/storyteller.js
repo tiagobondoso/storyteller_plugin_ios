@@ -232,6 +232,37 @@ Storyteller.showStoriesRow = function(options, successCallback, errorCallback) {
     return execPromise('showStoriesRow', [options], successCallback, errorCallback);
 };
 
+// Mostrar uma Stories Row inline, sobre o layout existente (OutSystems)
+// options exemplo:
+// {
+//   // stories config (obrigatório):
+//   categories: ['sports', 'entertainment'],
+//   cellType: 'round',           // opcional
+//   displayLimit: 10,            // opcional
+//   visibleTiles: 3,             // opcional
+//   context: { source: 'home' }, // opcional
+//
+//   // layout (opcional, mas recomendado):
+//   elementId: 'storiesRowContainer', // ou selector / elemento
+//   // ou diretamente: top, left, width, height, etc.
+// }
+Storyteller.showStoriesRowInline = function(options, successCallback, errorCallback) {
+    if (!options || typeof options !== 'object') {
+        var err = 'Options object is required';
+        if (typeof errorCallback === 'function') errorCallback(err);
+        return Promise.reject(err);
+    }
+
+    if (!Array.isArray(options.categories) || options.categories.length === 0) {
+        var err2 = 'At least one category is required in options.categories';
+        if (typeof errorCallback === 'function') errorCallback(err2);
+        return Promise.reject(err2);
+    }
+
+    var prepared = prepareInlineOptions(options);
+    return execPromise('showStoriesRowInline', [prepared], successCallback, errorCallback);
+};
+
 // Set user locale (string or null to clear)
 Storyteller.setLocale = function(locale, successCallback, errorCallback) {
     return execPromise('setLocale', [locale], successCallback, errorCallback);
@@ -338,6 +369,20 @@ Storyteller.clearEventListener = function() {
 //     .catch(function (err) { console.error('debugPing ERROR:', err); });
 Storyteller.debugPing = function(successCallback, errorCallback) {
     return execPromise('debugPing', [], successCallback, errorCallback);
+};
+
+// Atualizar o layout da Stories Row inline (por exemplo, em resize/scroll significativo)
+Storyteller.updateStoriesRowInlineLayout = function(layoutOptions, successCallback, errorCallback) {
+    var prepared;
+    if (layoutOptions && typeof layoutOptions === 'object') {
+        prepared = prepareInlineLayout(layoutOptions);
+    }
+    return execPromise('updateStoriesRowInlineLayout', [prepared || {}], successCallback, errorCallback);
+};
+
+// Remover a Stories Row inline do ecrã atual
+Storyteller.removeStoriesRowInline = function(successCallback, errorCallback) {
+    return execPromise('removeStoriesRowInline', [], successCallback, errorCallback);
 };
 
 
