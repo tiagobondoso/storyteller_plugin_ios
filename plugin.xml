@@ -24,6 +24,7 @@
         <source-file src="src/ios/Storyteller.swift" />
         <source-file src="src/ios/StorytellerHandler.swift" />
         <source-file src="src/ios/StorytellerViewController.swift" />
+        <source-file src="src/ios/Storyteller+StoriesRow.swift" />
         
     <framework src="UIKit.framework" weak="true"/>
     <framework src="Foundation.framework" weak="true"/>
