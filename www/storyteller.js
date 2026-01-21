@@ -207,6 +207,31 @@ Storyteller.openStoryById = function(id, successCallback, errorCallback) {
     return execPromise('openStoryById', [id], successCallback, errorCallback);
 };
 
+// Mostrar uma Stories Row nativa em ecrã dedicado (full-screen helper)
+// options exemplo:
+// {
+//   categories: ['sports', 'entertainment'],
+//   cellType: 'round',
+//   displayLimit: 10,
+//   visibleTiles: 3,
+//   context: { source: 'home', campaign: 'summer' }
+// }
+Storyteller.showStoriesRow = function(options, successCallback, errorCallback) {
+    if (!options || typeof options !== 'object') {
+        var err = 'Options object is required';
+        if (typeof errorCallback === 'function') errorCallback(err);
+        return Promise.reject(err);
+    }
+
+    if (!Array.isArray(options.categories) || options.categories.length === 0) {
+        var err2 = 'At least one category is required in options.categories';
+        if (typeof errorCallback === 'function') errorCallback(err2);
+        return Promise.reject(err2);
+    }
+
+    return execPromise('showStoriesRow', [options], successCallback, errorCallback);
+};
+
 // Set user locale (string or null to clear)
 Storyteller.setLocale = function(locale, successCallback, errorCallback) {
     return execPromise('setLocale', [locale], successCallback, errorCallback);

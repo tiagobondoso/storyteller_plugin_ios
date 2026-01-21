@@ -659,6 +659,45 @@ class CDVStoryteller: CDVPlugin {
         }
     }
 
+    // MARK: - Show Stories Row (full-screen helper)
+    /// JS usage: Storyteller.showStoriesRow(options)
+    /// options example:
+    ///   {
+    ///     categories: ['sports', 'entertainment'],
+    ///     cellType: 'round',
+    ///     displayLimit: 10,
+    ///     visibleTiles: 3,
+    ///     context: { source: 'home', campaign: 'summer' }
+    ///   }
+    @objc(showStoriesRow:)
+    func showStoriesRow(_ command: CDVInvokedUrlCommand) {
+        guard let options = command.argument(at: 0) as? [String: Any] else {
+            let result = CDVPluginResult(status: .error, messageAs: "Options dictionary is required.")
+            self.commandDelegate.send(result, callbackId: command.callbackId)
+            return;
+        }
+
+        do {
+            guard let configuration = try StoriesRowConfigurationBuilder.makeConfiguration(from: options) else {
+                let result = CDVPluginResult(status: .error, messageAs: "Invalid or empty configuration for Stories Row.")
+                self.commandDelegate.send(result, callbackId: command.callbackId)
+                return
+            }
+
+            DispatchQueue.main.async {
+                let vc = StoriesRowViewController(configuration: configuration)
+                vc.modalPresentationStyle = .fullScreen
+                self.viewController.present(vc, animated: true, completion: nil)
+
+                let result = CDVPluginResult(status: .ok, messageAs: "Stories Row presented.")
+                self.commandDelegate.send(result, callbackId: command.callbackId)
+            }
+        } catch {
+            let result = CDVPluginResult(status: .error, messageAs: error.localizedDescription)
+            self.commandDelegate.send(result, callbackId: command.callbackId)
+        }
+    }
+
 }
 
 private extension UIColor {
