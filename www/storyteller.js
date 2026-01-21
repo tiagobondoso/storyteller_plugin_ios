@@ -212,67 +212,6 @@ Storyteller.setLocale = function(locale, successCallback, errorCallback) {
     return execPromise('setLocale', [locale], successCallback, errorCallback);
 };
 
-// Open a category (list of stories) by category id
-Storyteller.openCategory = function(categoryId, successCallback, errorCallback) {
-    if (typeof categoryId !== 'string' || categoryId.length === 0) {
-        const err = 'Category id is required';
-        if (typeof errorCallback === 'function') errorCallback(err);
-        return Promise.reject(err);
-    }
-
-    return execPromise('openCategory', [categoryId], successCallback, errorCallback);
-};
-
-// Open a specific page by page id
-Storyteller.openPage = function(pageId, successCallback, errorCallback) {
-    if (typeof pageId !== 'string' || pageId.length === 0) {
-        const err = 'Page id is required';
-        if (typeof errorCallback === 'function') errorCallback(err);
-        return Promise.reject(err);
-    }
-
-    return execPromise('openPage', [pageId], successCallback, errorCallback);
-};
-
-// Open a clip collection with optional destination
-// configuration example:
-//   {
-//     collectionId: 'clips-collection-id',
-//     destination: { clipExternalId: 'clip-123' } // or { categoryId: 'cat-id' }
-//   }
-Storyteller.openCollection = function(configuration, successCallback, errorCallback) {
-    if (!configuration || typeof configuration !== 'object') {
-        const err = 'Configuration object is required';
-        if (typeof errorCallback === 'function') errorCallback(err);
-        return Promise.reject(err);
-    }
-
-    if (typeof configuration.collectionId !== 'string' || configuration.collectionId.length === 0) {
-        const err = 'configuration.collectionId is required';
-        if (typeof errorCallback === 'function') errorCallback(err);
-        return Promise.reject(err);
-    }
-
-    return execPromise('openCollection', [configuration], successCallback, errorCallback);
-};
-
-// Open a specific clip by external id within a collection
-Storyteller.openClipByExternalId = function(collectionId, externalId, successCallback, errorCallback) {
-    if (typeof collectionId !== 'string' || collectionId.length === 0) {
-        const err = 'collectionId is required';
-        if (typeof errorCallback === 'function') errorCallback(err);
-        return Promise.reject(err);
-    }
-
-    if (typeof externalId !== 'string' || externalId.length === 0) {
-        const err = 'externalId is required';
-        if (typeof errorCallback === 'function') errorCallback(err);
-        return Promise.reject(err);
-    }
-
-    return execPromise('openClipByExternalId', [collectionId, externalId], successCallback, errorCallback);
-};
-
 // User custom attributes
 Storyteller.setUserCustomAttribute = function(key, value, successCallback, errorCallback) {
     if (typeof key !== 'string' || key.length === 0) {
@@ -328,49 +267,6 @@ Storyteller.removeFollowedCategories = function(categories, successCallback, err
         return Promise.reject(err);
     }
     return execPromise('removeFollowedCategories', [categories], successCallback, errorCallback);
-};
-
-Storyteller.showStoriesRowView = function(options, successCallback, errorCallback) {
-    if (typeof options === 'function') {
-        errorCallback = successCallback;
-        successCallback = options;
-        options = null;
-    }
-
-    if (options && typeof options !== 'object') {
-        const err = 'Options must be an object when provided.';
-        if (typeof errorCallback === 'function') errorCallback(err);
-        return Promise.reject(err);
-    }
-
-    const args = options ? [options] : [];
-    return execPromise('showStoriesRowView', args, successCallback, errorCallback);
-};
-
-Storyteller.showStoriesRowInline = function(options, successCallback, errorCallback) {
-    if (!options || typeof options !== 'object') {
-        const err = 'Options object with at least one category is required.';
-        if (typeof errorCallback === 'function') errorCallback(err);
-        return Promise.reject(err);
-    }
-
-    var preparedOptions = prepareInlineOptions(options);
-    return execPromise('showStoriesRowInline', [preparedOptions], successCallback, errorCallback);
-};
-
-Storyteller.updateStoriesRowInlineLayout = function(layoutOptions, successCallback, errorCallback) {
-    if (!layoutOptions || typeof layoutOptions !== 'object') {
-        const err = 'Layout options object is required.';
-        if (typeof errorCallback === 'function') errorCallback(err);
-        return Promise.reject(err);
-    }
-
-    var preparedLayout = prepareInlineLayout(layoutOptions);
-    return execPromise('updateStoriesRowInlineLayout', [preparedLayout], successCallback, errorCallback);
-};
-
-Storyteller.removeStoriesRowInline = function(successCallback, errorCallback) {
-    return execPromise('removeStoriesRowInline', [], successCallback, errorCallback);
 };
 
 // Generic events listener (test channel for validating keepCallback)
